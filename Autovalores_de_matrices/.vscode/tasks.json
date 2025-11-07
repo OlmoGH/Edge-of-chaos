@@ -1,0 +1,29 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: g++.exe build active file",
+            "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",
+            "args": [
+                "-std=c++17",
+                "-fdiagnostics-color=always",
+                "-g",
+                "${file}",
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe",
+                "-I",
+                "C:/Users/olmov/Desktop/Uni/TFG-Beca_colaboracion/Autovalores_de_matrices/eigen-5.0.0",
+                "-O2"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Compilador: MSYS2 UCRT64 con Eigen",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}
