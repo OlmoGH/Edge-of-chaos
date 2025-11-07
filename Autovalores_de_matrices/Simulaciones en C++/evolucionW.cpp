@@ -18,6 +18,7 @@ class AntiHebbianLearning
         void EvolutionConnections();
         void EvolutionNeurons();
         void SaveEigenvalues(std::ofstream& file, int iter);
+        void SaveStates(std::ofstream& file, int iter);
 
 
 };
@@ -72,28 +73,50 @@ void AntiHebbianLearning::SaveEigenvalues(std::ofstream& file, int iter)
     file << std::endl;
 }
 
+void AntiHebbianLearning::SaveStates(std::ofstream& file, int iter)
+{
+
+    if (iter == 0)
+    {        
+        file << "x" << 0;
+        for (size_t k = 1; k < dim; k++) {
+            file << ",x" << k;
+        }
+        file << std::endl;
+    }
+
+    file << neurons[0];
+    for (size_t i = 1; i < dim; ++i) {
+        file << ',' << neurons[i];
+    }
+    file << std::endl;
+}
+
 int main() {    
     // Condiciones iniciales
     // - W(0) = matriz gaussiana normalizada
     // - x(0) = ector gaussiano normalizado
 
-    std::ofstream ofile("Eigenvalues.txt");
-    if (!ofile) {std::cerr << "Error loading the file" << std::endl; return 1;}
+    std::ofstream connectFile("Eigenvalues.txt"), neurFile("States.txt");
+    if (!connectFile) {std::cerr << "Error loading the connections file" << std::endl; return 1;}
+    if (!neurFile) {std::cerr << "Error loading the neurons file" << std::endl; return 1;}
 
     double alpha = 0.01;
     double dt = 0.01;
     size_t dim = 100;
-    int iterations = 1;
+    int iterations = 10000;
 
     AntiHebbianLearning state(alpha, dt, dim);
 
     for (int i = 0; i < iterations; i++)
     {
-        state.SaveEigenvalues(ofile, i);
+        state.SaveStates(neurFile, i);
+        // state.SaveEigenvalues(connectFile, i);
         state.EvolutionNeurons();
         state.EvolutionConnections();
     }
 
-    ofile.close();
+    connectFile.close();
+    neurFile.close();
     return 0;
 }
