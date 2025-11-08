@@ -30,7 +30,7 @@ dim(dim_)
 {
     std::random_device rd;
     std::mt19937 gen(rd());
-    std::normal_distribution<double> dist(0.0, 1.0 / std::sqrt(dim_));
+    std::normal_distribution<double> dist(0.0, 1.0);
     auto normal = [&]() { return dist(gen); };
 
     connections = Eigen::MatrixXd::NullaryExpr(dim_, dim_, normal);
@@ -103,15 +103,15 @@ int main() {
 
     double alpha = 0.01;
     double dt = 0.01;
-    size_t dim = 100;
-    int iterations = 10000;
+    size_t dim = 20;
+    int iterations = 100000;
 
     AntiHebbianLearning state(alpha, dt, dim);
 
     for (int i = 0; i < iterations; i++)
     {
         state.SaveStates(neurFile, i);
-        // state.SaveEigenvalues(connectFile, i);
+        state.SaveEigenvalues(connectFile, i);
         state.EvolutionNeurons();
         state.EvolutionConnections();
     }
