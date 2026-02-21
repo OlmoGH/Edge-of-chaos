@@ -1,6 +1,7 @@
 # Ignore output and executable files
 *.txt
 *.exe
+*.bin
 
 # Ignore VSCode configurations
 *.vscode/
