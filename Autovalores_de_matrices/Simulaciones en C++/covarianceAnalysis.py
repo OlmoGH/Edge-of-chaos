@@ -2,17 +2,16 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-alpha = 0.01
-dim = 5000
+alpha = 0.001
+dim = 300
 dt = 0.01
 
 raw_data = np.fromfile(f'output/States_{alpha}_{dim}_{dt}.bin', dtype=np.float64)
 data = raw_data.reshape((-1, dim))
 print(np.shape(data))
-init = 30000
-covariance = np.cov(data[init:, :].T)
+covariance = np.cov(data.T)
 eigenvalues = np.sort(np.linalg.eigvals(covariance))[::-1]
-plt.loglog(eigenvalues)
+plt.plot(eigenvalues)
 plt.show()
 
 # # Crear coordenadas

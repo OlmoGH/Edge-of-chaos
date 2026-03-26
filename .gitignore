@@ -2,6 +2,6 @@
 *.txt
 *.exe
 *.bin
-
+*.h5
 # Ignore VSCode configurations
 *.vscode/

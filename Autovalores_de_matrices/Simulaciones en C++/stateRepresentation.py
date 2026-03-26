@@ -8,14 +8,16 @@ def get_data(alpha, dim, dt):
     states = raw_data.reshape((-1, dim)).T
     return states
 
-def save_heatmap(states, alpha, n_sigmas=0):
+def save_heatmap(states, alpha, n_sigmas=0, save=False):
     mu = states.mean()
     sigma = states.std()
     mask = states < mu + n_sigmas * sigma
     states[mask] = 0
     plt.imshow(states, aspect='auto', cmap='hot', interpolation='none')
     plt.colorbar()
-    plt.savefig(f"../Animaciones y figuras/heatmap_{alpha}.png")
+    if save:
+        plt.savefig(f"../Animaciones y figuras/heatmap_{alpha}.png")
+    plt.show()
 
 def show_hist(states):
     plt.hist(states.ravel(), 100, density=True)
@@ -28,8 +30,14 @@ def show_fft(states, min_val=-np.inf):
     plt.plot(np.abs(np.fft.fft(states_resumado))[1:len(states_resumado)//2])
     plt.show()
 
-alpha = 0.01
+def show_evolucion_resumado(states, min_val=-np.inf):
+    mask = states < min_val
+    states[mask] = 0
+    plt.plot(states[0])
+    plt.show()
+
+alpha = 0.0001
 dim = 300
 dt = 0.01
 states = get_data(alpha, dim, dt)
-save_heatmap(states, alpha, 2)
+show_evolucion_resumado(states, 1)

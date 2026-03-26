@@ -1,11 +1,21 @@
 # Análisis de resultados
-## Pruebas de no criticidad
 
-|||
-|:--:|:--:|
-|![Heatmap of neural activity. Alpha = 0.00001](Animaciones%20y%20figuras/heatmap_1e-05.png)|![Heatmap of neural activity. Alpha = 0.001](Animaciones%20y%20figuras/heatmap_0.001.png)|
-|Heatmap of neural activity. Alpha = 0.00001|Heatmap of neural activity. Alpha = 0.001|
-|![Heatmap of neural activity. Alpha = 0.01](Animaciones%20y%20figuras/heatmap_0.01.png)|![Heatmap of neural activity. Alpha = 0.1](Animaciones%20y%20figuras/heatmap_0.1.png)|
-|Heatmap of neural activity. Alpha = 0.01|Heatmap of neural activity. Alpha = 0.1|
+## Estudio de las oscilaciones
 
-![Heatmap of neural activity. Alpha = 1](Animaciones%20y%20figuras/heatmap_1.png)|
+La velocidad de los autovalores de la matriz $W$ se pueden obtener mediante la siguiente expresión
+
+$$
+\dot{\lambda} = y^*\dot{W}x
+$$
+
+sustituyendo $\dot{W}$ en la ecuación y simplificando obtenemos
+
+$$
+\dot{\lambda} = \alpha (1 - (v^*\cdot x)(x^T \cdot u)) = \alpha (1-\braket{v | x}  \braket{x|u})
+$$
+
+Volvemos a derivar con respecto a $t$ y simplificamos
+
+$$
+\ddot{\lambda} = -4\alpha\braket{u|x}\braket{x|v}\Re{\lambda}
+$$

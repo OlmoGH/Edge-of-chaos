@@ -14,7 +14,7 @@ int main() {
 
     // Especificamos la cinfiguración y parámetros del sistema
     ConfigSimulacion mi_config;
-    mi_config.alpha = 0.0001; // Ratio de aprendizaje
+    mi_config.alpha = 0.001; // Ratio de aprendizaje
     mi_config.dt = 0.01; // Intervalo de tiempo entre pasos
     mi_config.dim = 300; // Tamaño del vector de neuronas
     mi_config.iterations = 1000000; // Iteraciones de la evolución
@@ -48,7 +48,7 @@ int main() {
     for (int i = 0; i < mi_config.iterations; i++)
     {
         // Guardamos todos los datos en cada paso
-        ExportData(mi_config, state1);
+        if (i % 100 == 0) ExportData(mi_config, state1);
 
         // Evolucionamos el sistema y la matriz de conexiones
         state1.IntegrateStep(mi_config);
