@@ -4,7 +4,22 @@ from pathlib import Path
 import h5py
 
 @njit(fastmath=True)
-def ChunkSimulation(X, W, ALPHA, DIM, DT, CHUNK_STEPS, SKIP):
+def X_dot(W, X, DIM):
+    phi = np.zeros_like(X)
+
+    # Aplicamos la función sigmoide
+    for i in range(DIM):
+        phi[i] = np.tanh(X[i])
+    
+    result = np.zeros_like(X)
+    for i in range(DIM):
+        for j in range(DIM):
+            result[i] += W[i, j] * phi[j]
+    
+    return result
+
+@njit(fastmath=True)
+def SigmoidChunkSimulation(X, W, ALPHA, DIM, DT, CHUNK_STEPS, SKIP):
     saved_steps = CHUNK_STEPS // SKIP
     BUFFER_X = np.zeros((saved_steps, DIM), dtype=X.dtype)
     BUFFER_W = np.zeros((saved_steps, DIM, DIM), dtype=W.dtype)
@@ -22,20 +37,20 @@ def ChunkSimulation(X, W, ALPHA, DIM, DT, CHUNK_STEPS, SKIP):
 
         # 1. Empleamos RK4 para la evolución de x
         # Calculamos k1
-        k1 = np.dot(W, X)
+        k1 = X_dot(W, X, DIM)
         
         # Calculamos k2
         for i in range(DIM): temp_X[i] = X[i] + 0.5 * k1[i] * DT
         
-        k2 = np.dot(W, temp_X)
+        k2 = X_dot(W, temp_X, DIM)
 
         # Calculamos k3
         for i in range(DIM): temp_X[i] = X[i] + 0.5 * k2[i] * DT
-        k3 = np.dot(W, temp_X)
+        k3 = X_dot(W, temp_X, DIM)
 
         # Calculamos k4
         for i in range(DIM): temp_X[i] = X[i] + k3[i] * DT
-        k4 = np.dot(W, temp_X)
+        k4 = X_dot(W, temp_X, DIM)
 
         # Calculamos el término de xx^T
         for i in range(DIM):
@@ -46,15 +61,13 @@ def ChunkSimulation(X, W, ALPHA, DIM, DT, CHUNK_STEPS, SKIP):
         for i in range(DIM):
             W_dot[i, i] += ALPHA
 
-        # Multiplicamos por W
-        for i in range(DIM):
-            for j in range(DIM):
-                sum = 0
-                for k in range(DIM):
-                    sum += W_dot[i, k] * W[k, j]
-                W_dot[i, j] = sum
-
-        # Multiplicamos 
+        # # Multiplicamos por W
+        # for i in range(DIM):
+        #     for j in range(DIM):
+        #         sum = 0
+        #         for k in range(DIM):
+        #             sum += W_dot[i, k] * W[k, j]
+        #         W_dot[i, j] = sum
 
         # Actualizamos X
         for i in range(DIM):
@@ -64,6 +77,7 @@ def ChunkSimulation(X, W, ALPHA, DIM, DT, CHUNK_STEPS, SKIP):
         for i in range(DIM):
             for j in range(DIM):
                 W[i, j] += DT * W_dot[i, j]
+
     return X, W, BUFFER_X, BUFFER_W
 
 @njit(fastmath=True)
@@ -71,10 +85,8 @@ def StartSimulation(X, W, ALPHA, DIM, DT, START):
     
     # Pre-alocamos los arrays temporales
     temp_X = np.zeros(DIM, dtype=X.dtype)
-    k1 = np.zeros(DIM, dtype=X.dtype)
-    k2 = np.zeros(DIM, dtype=X.dtype)
-    k3 = np.zeros(DIM, dtype=X.dtype)
-    k4 = np.zeros(DIM, dtype=X.dtype)
+    W_dot = np.zeros_like(W)
+
 
     for step in range(START):
         if step % 1_000_000 == 0: 
@@ -82,48 +94,46 @@ def StartSimulation(X, W, ALPHA, DIM, DT, START):
             print("Paso:", step, "| Max abs(X):", X.max(), "| Max abs(W):", W.max())
         # 1. Empleamos RK4 para la evolución de x
         # Calculamos k1
-        for i in range(DIM):
-            k1[i] = 0.0
-            for j in range(DIM):
-                k1[i] += W[i, j] * X[j]
+        k1 = X_dot(W, X, DIM)
         
         # Calculamos k2
         for i in range(DIM): temp_X[i] = X[i] + 0.5 * k1[i] * DT
         
-        for i in range(DIM):
-            k2[i] = 0.0
-            for j in range(DIM):
-                k2[i] += W[i, j] * temp_X[j]
+        k2 = X_dot(W, temp_X, DIM)
 
         # Calculamos k3
         for i in range(DIM): temp_X[i] = X[i] + 0.5 * k2[i] * DT
-
-        for i in range(DIM):
-            k3[i] = 0.0
-            for j in range(DIM):
-                k3[i] += W[i, j] * temp_X[j]
+        k3 = X_dot(W, temp_X, DIM)
 
         # Calculamos k4
         for i in range(DIM): temp_X[i] = X[i] + k3[i] * DT
+        k4 = X_dot(W, temp_X, DIM)
 
-        for i in range(DIM):
-            k4[i] = 0.0
-            for j in range(DIM):
-                k4[i] += W[i, j] * temp_X[j]
-
-        # 2. Actualizamos el término de xx^T
+        # Calculamos el término de xx^T
         for i in range(DIM):
             for j in range(DIM):
-                W[i, j] -= DT * ALPHA * X[i] * X[j]
+                W_dot[i, j] = -DT * ALPHA * X[i] * X[j]
         
         # Actualizamos la diagonal con la identidad
         for i in range(DIM):
-            W[i, i] += DT * ALPHA
+            W_dot[i, i] += ALPHA
 
-        # 3. Actualizamos X
+        # # Multiplicamos por W
+        # for i in range(DIM):
+        #     for j in range(DIM):
+        #         sum = 0
+        #         for k in range(DIM):
+        #             sum += W_dot[i, k] * W[k, j]
+        #         W_dot[i, j] = sum
+
+        # Actualizamos X
         for i in range(DIM):
             X[i] += DT * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]) / 6.0
 
+        # Actualizamos W
+        for i in range(DIM):
+            for j in range(DIM):
+                W[i, j] += DT * W_dot[i, j]
     return X, W
 
 def Simulate_and_save(ALPHA, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, START, calc_eigenvalues=False):
@@ -172,7 +182,7 @@ def Simulate_and_save(ALPHA, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, START,
             final_index = initial_index + CHUNK_STEPS//SKIP
 
             # Llamamos a la función para que haga la simulación del lote
-            X, W, BUFFER_X, BUFFER_W = ChunkSimulation(X, W, ALPHA, DIM, DT, CHUNK_STEPS, SKIP)
+            X, W, BUFFER_X, BUFFER_W = SigmoidChunkSimulation(X, W, ALPHA, DIM, DT, CHUNK_STEPS, SKIP)
 
             # Guardamos los buffer en el dataset
             dataset_X[initial_index:final_index] = BUFFER_X

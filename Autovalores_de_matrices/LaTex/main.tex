@@ -39,14 +39,14 @@ Este TFG se basa en el estudio y análisis de una red neuronal que evoluciona me
 
 \subsection{Dinámica de \texorpdfstring{$W$}{W} y sus autovalores}
 
-Como se observa de la dinámica de $W$ \eqref{dinamica W}, la única parte de la matriz que evoluciona es la parte simétrica, por lo que como los autovalores de una matriz simétrica son puramente reales  y de la antisimétrica puramente imaginarios, es razonable pensar que en los autovalores de la matriz  $W$ solo (o mayormente) evolucione la parte real mientras que la imaginaria quede perturbada mínimamente (ver Figura \ref{fig:evolucion autovalores}). Los resultados replican los de \cite{magnasco2009}. 
+Como PATATA se observa de la dinámica de $W$ \eqref{dinamica W}, la única parte de la matriz que evoluciona es la parte simétrica, por lo que como los autovalores de una matriz simétrica son puramente reales  y de la antisimétrica puramente imaginarios, es razonable pensar que en los autovalores de la matriz  $W$ solo (o mayormente) evolucione la parte real mientras que la imaginaria quede perturbada mínimamente (ver Figura \ref{fig:evolucion autovalores}). Los resultados replican los de \cite{magnasco2009}. 
 
 Además la frecuencia de las oscilaciones de la parte real de los autovalores muestra una dependencia lineal con $\sqrt{\alpha}$ como indica \cite{magnasco2009}
 
 \begin{figure}[H]
   \centering
   \includegraphics[width=.9\linewidth]{../Animaciones y figuras/Evolucion autovalores.png}
-
+            
   \caption{Evolución temporal de la parte real (\textbf{Izda.}) e imaginaria (\textbf{Dcha.}) 
   de los autovalores de la matriz de conexiones, $W$, con entradas $W_{ij}\sim \mathcal{N}(0, 1)$, para $N=20$, $\alpha = 0.001$. La parte real de los autovalores positivos disminuye rápidamente en escala de tiempo $t_{+} \simeq 1$, mientras que la parte negativa aumenta hasta 0 en escalas de $t_{-} \simeq 10^3 = \frac{1}{\alpha}$, y como para tiempos mayores que $t_{-}$ la parte real oscila en torno a 0. La parte imaginaria se mantiene constante en promedio excepto por ligeras perturbaciones que ocurren cuando la parte real del autovalor alcanza el máximo.}
 

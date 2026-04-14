@@ -1,48 +1,49 @@
-This is BibTeX, Version 0.99d
+This is BibTeX, Version 0.99d (TeX Live 2023)
 Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
 The top-level auxiliary file: main.aux
-Reallocating 'name_of_file' (item size: 1) to 6 items.
 The style file: unsrt.bst
-Reallocating 'name_of_file' (item size: 1) to 13 items.
 Database file #1: bibliografia.bib
+Warning--empty journal in magnasco2009
+Warning--empty year in magnasco2009
 You've used 1 entry,
             1791 wiz_defined-function locations,
-            453 strings with 3675 characters,
-and the built_in function-call counts, 253 in all, are:
-= -- 19
+            451 strings with 3648 characters,
+and the built_in function-call counts, 251 in all, are:
+= -- 17
 > -- 11
 < -- 0
 + -- 4
 - -- 3
 * -- 24
-:= -- 47
+:= -- 45
 add.period$ -- 3
 call.type$ -- 1
 change.case$ -- 1
 chr.to.int$ -- 0
-cite$ -- 1
+cite$ -- 3
 duplicate$ -- 9
 empty$ -- 24
 format.name$ -- 3
-if$ -- 51
+if$ -- 49
 int.to.chr$ -- 0
 int.to.str$ -- 1
 missing$ -- 1
 newline$ -- 8
 num.names$ -- 1
-pop$ -- 1
+pop$ -- 4
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
 skip$ -- 3
 stack$ -- 0
 substring$ -- 18
-swap$ -- 1
+swap$ -- 0
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
-warning$ -- 0
+warning$ -- 2
 while$ -- 2
 width$ -- 2
-write$ -- 13
+write$ -- 11
+(There were 2 warnings)

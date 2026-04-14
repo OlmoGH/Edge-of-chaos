@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from pathlib import Path
 from antiHebbianEvolution import Simulate_and_save as Simulate_hebbian
-from antiHebbianMultEvolution import Simulate_and_save as Simulate_Mult_Hebbian
+from antiHebbianModEvolution import Simulate_and_save as Simulate_Mod
 from DataManagement import read_data
 from matplotlib.patches import Rectangle
 
@@ -48,23 +48,21 @@ def show(temporal_series, eigenvalues, cov_eigs_sorted, heatmap_min):
     plt.tight_layout(pad=3.0)
     plt.show()
 
-def animar_autovalores(alpha, dim, dt, skip_lote, real, imag):
-    skip = 1
+def animar_autovalores(skip_frames, dt, skip_lote, real, imag):
     fig, ax = plt.subplots()
-    eigvals = ax.scatter([], [], color=color, marker='.', rasterized=True)
+    eigvals, = ax.plot([], [], 'b.', rasterized=True)
     time_txt = ax.text(x=0, y=1.4, s="", ha='center', va='center', fontsize=12)
     ax.set_aspect('equal')
     ax.set_xlim([-1.2, 1.2])
     ax.set_ylim([-1.2, 1.2])
 
     def update(frame):
-        frame = frame//skip
-        coords = np.column_stack((real[frame], imag[frame]))
-        eigvals.set_offsets(coords)
-        time_txt.set_text(f"t = {frame * skip * skip_lote * dt:.0f}")
+        frame = frame//skip_frames
+        eigvals.set_data(real[frame], imag[frame])
+        time_txt.set_text(f"t = {frame * skip_frames * skip_lote * dt:.0f}")
 
         return eigvals, time_txt
-    animation = FuncAnimation(fig, update, frames=range(0, real.shape[0], skip), blit=False, interval=20)
+    animation = FuncAnimation(fig, update, frames=range(0, real.shape[0], skip_frames), blit=False, interval=20)
     plt.show()
     # animation.save(f"Animacion_{alpha}_{dim}")
 
@@ -151,40 +149,32 @@ def obtener_mejor_frecuencia(lista_señales, steps, skip, dt):
 
     plt.show()
 
-ALPHA = 1.0E-010
+ALPHA = 1.0E-4
 DT = 0.01
-DIM = 20
-SIMULATED_STEPS = 1_000_000
-START = 0
+DIM = 100
+SIMULATED_STEPS = 10_000_000
+START = 5_000_000
 CHUNK_STEPS = 100_000
-SKIP = 10
+SKIP = 20
 SAVED_STEPS = (SIMULATED_STEPS - START)//SKIP
 calc_eigenvalues = False
 
 # Simulamos la red con los parámetros dados
-Simulate_Mult_Hebbian(ALPHA, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, START, calc_eigenvalues)
+Simulate_Mod(ALPHA, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, START, calc_eigenvalues)
 
 # Leemos los datos de la simulación y calculamos los autovalores (opcional)
 archivo_hdf5, X, W, real_eigvals, imag_eigvals = read_data()
 print("Datos leidos")
+# skip_frames = 100
+# animar_autovalores(skip_frames, DT, SKIP, real_eigvals, imag_eigvals)
 
-plt.plot(X[:, 0])
-plt.show()
+# plt.plot(X[:, 0])
+# plt.show()
 
 # fig, ax = plt.subplots(ncols=2, figsize=(10,  5))
 # ax[0].plot(X[:, 0])
 # ax[1].plot(real_eigvals, 'b.', markersize=1, rasterized=True)
 # plt.show()
-
-# y200_new = np.load("cov_eig_200.npy")
-# y500_new = np.load("cov_eig_500.npy")
-
-# plt.loglog(y200_new)
-# plt.loglog(y500_new)
-# plt.grid(True, alpha=0.8)
-# plt.tight_layout()
-# plt.show()
-# plt.plot(real_eigvals[:], 'b.', markersize=1, rasterized=True)
 
 # cov = np.cov(X[:], rowvar=False)
 # eig_cov = np.linalg.eigvalsh(cov)
@@ -193,12 +183,12 @@ plt.show()
 # plt.show()
 
 
-# # Calculamos la energía de la red como E = |X|
-# energy = np.linalg.norm(X[:], axis=1)**2
-# plt.plot(energy)
-# plt.show()
-# plt.loglog(np.abs(np.fft.rfft(energy - np.mean(energy)))**2)
-# plt.show()
+# Calculamos la energía de la red como E = |X|
+energy = np.linalg.norm(X[:], axis=1)**2
+plt.plot(energy)
+plt.show()
+plt.loglog(np.abs(np.fft.rfft(energy - np.mean(energy)))**2)
+plt.show()
 # fig, ax = plt.subplots(ncols=2, figsize=(10, 5))
 # ax[0].plot(real_eigvals[:, 0], 'r', linewidth=2, rasterized=True)
 # ax[0].plot(real_eigvals[:, 2], 'b', linewidth=2, rasterized=True)
