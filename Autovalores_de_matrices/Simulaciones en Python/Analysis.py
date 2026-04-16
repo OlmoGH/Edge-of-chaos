@@ -4,8 +4,10 @@ from matplotlib.animation import FuncAnimation
 from pathlib import Path
 from antiHebbianEvolution import Simulate_and_save as Simulate_hebbian
 from antiHebbianModEvolution import Simulate_and_save as Simulate_Mod
+from brenner import Simulate_and_save as Simulate_Brenner
 from DataManagement import read_data
 from matplotlib.patches import Rectangle
+import time
 
 def show(temporal_series, eigenvalues, cov_eigs_sorted, heatmap_min):
     fig, ax = plt.subplots(ncols=2, nrows=2, figsize=(10,10))
@@ -151,49 +153,61 @@ def obtener_mejor_frecuencia(lista_señales, steps, skip, dt):
 
 ALPHA = 1.0E-4
 DT = 0.01
-DIM = 100
-SIMULATED_STEPS = 10_000_000
-START = 5_000_000
+DIM = 20
+SIMULATED_STEPS = 1_000_000
+START = 0_000_000
 CHUNK_STEPS = 100_000
 SKIP = 20
 SAVED_STEPS = (SIMULATED_STEPS - START)//SKIP
 calc_eigenvalues = False
 
 # Simulamos la red con los parámetros dados
-Simulate_Mod(ALPHA, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, START, calc_eigenvalues)
+Simulate_hebbian(ALPHA, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, START, calc_eigenvalues)
 
-# Leemos los datos de la simulación y calculamos los autovalores (opcional)
-archivo_hdf5, X, W, real_eigvals, imag_eigvals = read_data()
-print("Datos leidos")
-# skip_frames = 100
-# animar_autovalores(skip_frames, DT, SKIP, real_eigvals, imag_eigvals)
+inicio = time.perf_counter()
+Simulate_Brenner(ALPHA, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, START, calc_eigenvalues)
+fin = time.perf_counter()
+time_brenner = fin - inicio
 
-# plt.plot(X[:, 0])
+inicio = time.perf_counter()
+Simulate_hebbian(ALPHA, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, START, calc_eigenvalues)
+fin = time.perf_counter()
+time_hebb = fin - inicio
+
+print("Sin retoques: ", time_hebb)
+print("Con retoques: ", time_brenner)
+# # Leemos los datos de la simulación y calculamos los autovalores (opcional)
+# archivo_hdf5, X, W, real_eigvals, imag_eigvals = read_data()
+# print("Datos leidos")
+# # skip_frames = 100
+# # animar_autovalores(skip_frames, DT, SKIP, real_eigvals, imag_eigvals)
+
+# # plt.plot(X[:, 0])
+# # plt.show()
+
+# # fig, ax = plt.subplots(ncols=2, figsize=(10,  5))
+# # ax[0].plot(X[:, 0])
+# # ax[1].plot(real_eigvals, 'b.', markersize=1, rasterized=True)
+# # plt.show()
+
+# # cov = np.cov(X[:], rowvar=False)
+# # eig_cov = np.linalg.eigvalsh(cov)
+# # np.save(f"cov_eig_{DIM}", eig_cov[::-1])
+# # plt.plot(eig_cov[::-1])
+# # plt.show()
+
+
+# # Calculamos la energía de la red como E = |X|
+# energy = np.linalg.norm(X[:], axis=1)**2
+# plt.plot(energy)
 # plt.show()
-
-# fig, ax = plt.subplots(ncols=2, figsize=(10,  5))
-# ax[0].plot(X[:, 0])
-# ax[1].plot(real_eigvals, 'b.', markersize=1, rasterized=True)
+# plt.loglog(np.abs(np.fft.rfft(energy - np.mean(energy)))**2)
 # plt.show()
+# # fig, ax = plt.subplots(ncols=2, figsize=(10, 5))
+# # ax[0].plot(real_eigvals[:, 0], 'r', linewidth=2, rasterized=True)
+# # ax[0].plot(real_eigvals[:, 2], 'b', linewidth=2, rasterized=True)
+# # ax[1].plot(energy, 'k', rasterized=True)
+# # ax[0].set_xlim([24750, 26750])
+# # ax[1].set_xlim([24750, 26750])
 
-# cov = np.cov(X[:], rowvar=False)
-# eig_cov = np.linalg.eigvalsh(cov)
-# np.save(f"cov_eig_{DIM}", eig_cov[::-1])
-# plt.plot(eig_cov[::-1])
-# plt.show()
-
-
-# Calculamos la energía de la red como E = |X|
-energy = np.linalg.norm(X[:], axis=1)**2
-plt.plot(energy)
-plt.show()
-plt.loglog(np.abs(np.fft.rfft(energy - np.mean(energy)))**2)
-plt.show()
-# fig, ax = plt.subplots(ncols=2, figsize=(10, 5))
-# ax[0].plot(real_eigvals[:, 0], 'r', linewidth=2, rasterized=True)
-# ax[0].plot(real_eigvals[:, 2], 'b', linewidth=2, rasterized=True)
-# ax[1].plot(energy, 'k', rasterized=True)
-# ax[0].set_xlim([24750, 26750])
-# ax[1].set_xlim([24750, 26750])
-
-archivo_hdf5.close()
+# archivo_hdf5.close()
