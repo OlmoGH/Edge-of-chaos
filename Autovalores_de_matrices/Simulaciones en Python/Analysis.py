@@ -2,12 +2,52 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation
 from pathlib import Path
-from antiHebbianEvolution import Simulate_and_save as Simulate_hebbian
-from antiHebbianModEvolution import Simulate_and_save as Simulate_Mod
-from brenner import Simulate_and_save as Simulate_Brenner
+import AntiHebbianMejorado
 from DataManagement import read_data
-from matplotlib.patches import Rectangle
-import time
+from scipy.linalg import null_space
+from eigenshuffle import eigenshuffle_eig
+from numba import njit
+
+@njit(fastmath=True)
+def get_tracked_eigenvectors(W_seq, target_eigenvalues):
+    T = W_seq.shape[0]
+    DIM = W_seq.shape[1]
+    
+    # Extraemos cuántos autovalores estamos siguiendo simultáneamente
+    N_eigenvalues = target_eigenvalues.shape[1]
+    
+    # Nueva forma: (Tiempo, Número de targets, Dimensión del vector)
+    eigenvectors = np.zeros((T, N_eigenvalues, DIM), dtype=np.complex128)
+    
+    for i in range(T):
+        if i % (T // 10) == 0: 
+            print("Paso ", i, " / ", T)
+            
+        # 1. Calculamos TODOS los autovalores y autovectores de golpe
+        # FORZAMOS el paso a complex128 para evitar el bug de desempaquetado de Numba
+        vals, vecs = np.linalg.eig(W_seq[i].astype(np.complex128))
+        
+        # 2. Para CADA autovalor que queremos rastrear, buscamos su pareja
+        for k in range(N_eigenvalues):
+            target_val = target_eigenvalues[i, k]
+            
+            min_dist = 1e9
+            best_idx = 0
+            
+            for j in range(DIM):
+                # abs() con complejos calcula el módulo (distancia euclídea)
+                dist = np.abs(vals[j] - target_val)
+                if dist < min_dist:
+                    min_dist = dist
+                    best_idx = j
+                    
+            # 3. Guardamos el autovector correspondiente
+            # vecs[:, best_idx] es la columna con el vector
+            # Lo guardamos en la fila correspondiente a nuestro target 'k'
+            eigenvectors[i, k, :] = vecs[:, best_idx]
+            
+    print("Acabé")
+    return eigenvectors
 
 def show(temporal_series, eigenvalues, cov_eigs_sorted, heatmap_min):
     fig, ax = plt.subplots(ncols=2, nrows=2, figsize=(10,10))
@@ -50,23 +90,22 @@ def show(temporal_series, eigenvalues, cov_eigs_sorted, heatmap_min):
     plt.tight_layout(pad=3.0)
     plt.show()
 
-def animar_autovalores(skip_frames, dt, skip_lote, real, imag):
+def animar_autovalores(skip_frames, dt, skip_lote, real, imag, save=False):
     fig, ax = plt.subplots()
     eigvals, = ax.plot([], [], 'b.', rasterized=True)
     time_txt = ax.text(x=0, y=1.4, s="", ha='center', va='center', fontsize=12)
     ax.set_aspect('equal')
-    ax.set_xlim([-1.2, 1.2])
-    ax.set_ylim([-1.2, 1.2])
+    ax.set_xlim([1.2 * real[:].min(), 1.2 * real[:].max()])
+    ax.set_ylim([1.2 * imag[:].min(), 1.2 * imag[:].max()])
 
     def update(frame):
-        frame = frame//skip_frames
         eigvals.set_data(real[frame], imag[frame])
-        time_txt.set_text(f"t = {frame * skip_frames * skip_lote * dt:.0f}")
+        time_txt.set_text(f"t = {frame * skip_lote * dt:.0f}")
 
         return eigvals, time_txt
     animation = FuncAnimation(fig, update, frames=range(0, real.shape[0], skip_frames), blit=False, interval=20)
+    if save: animation.save(f"Animacion_{ALPHA}_{DIM}.gif")
     plt.show()
-    # animation.save(f"Animacion_{alpha}_{dim}")
 
 def mostrar_evolucion_autovalores(real_eigvals_array, imag_eigvals_array, dt, skip):
     print("El tamaño de los arrays es ", real_eigvals_array.shape)
@@ -151,63 +190,89 @@ def obtener_mejor_frecuencia(lista_señales, steps, skip, dt):
 
     plt.show()
 
+#-------------------------------------------------------------------------
+
+#################################
+## PARÁMETROS DE LA SIMULACIÓN ##
+#################################
 ALPHA = 1.0E-4
 DT = 0.01
 DIM = 20
-SIMULATED_STEPS = 1_000_000
-START = 0_000_000
+# Pasos simulados y guardados
+SIMULATED_STEPS = 2_000_000
+# Pasos previos para el warmup
+START = 1_000_000
 CHUNK_STEPS = 100_000
-SKIP = 20
-SAVED_STEPS = (SIMULATED_STEPS - START)//SKIP
+SKIP = 10
+SAVED_STEPS = SIMULATED_STEPS//SKIP
 calc_eigenvalues = False
 
+#Inicializamos la matriz de conexiones y el vector de neuronas
+W = np.random.normal(0, 1.0/np.sqrt(DIM), (DIM, DIM))
+X = np.random.normal(0, 1.0, DIM)
+
+INPUT_X = np.zeros(DIM)
+INPUT_X_RANGE = [-1]
+
+rng_u = np.random.default_rng(42)
+u = rng_u.standard_normal(DIM)
+u = u / np.linalg.norm(u)
+
+rng_v = np.random.default_rng(69)
+v = rng_v.standard_normal(DIM)
+v = v - np.dot(u, v) * u
+v = v / np.linalg.norm(v)
+INPUT_W = (np.outer(u, v) - np.outer(v, u)) * 10
+
+INPUT_W_RANGE = np.arange(1_000_000, 1_200_000)
+
+#-------------------------------------------------------------------------
+
+#######################
+# WARMUP Y SIMULACIÓN #
+#######################
+# Simulamos los primeros START pasos
+print(f"Simulando los primeros {START} pasos")
+X, W = AntiHebbianMejorado.StartSimulation(X, W, ALPHA, DIM, DT, START)
+
 # Simulamos la red con los parámetros dados
-Simulate_hebbian(ALPHA, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, START, calc_eigenvalues)
+AntiHebbianMejorado.Simulate_and_save(X, W, INPUT_X, INPUT_X_RANGE, INPUT_W, INPUT_W_RANGE, ALPHA, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, calc_eigenvalues)
 
-inicio = time.perf_counter()
-Simulate_Brenner(ALPHA, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, START, calc_eigenvalues)
-fin = time.perf_counter()
-time_brenner = fin - inicio
+#-------------------------------------------------------------------------
 
-inicio = time.perf_counter()
-Simulate_hebbian(ALPHA, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, START, calc_eigenvalues)
-fin = time.perf_counter()
-time_hebb = fin - inicio
+####################
+# LECTURA DE DATOS #
+####################
+# Leemos los datos de la simulación y calculamos los autovalores (opcional)
+archivo_hdf5, X, W, real_eigvals, imag_eigvals = read_data()
+print("Datos leidos")
 
-print("Sin retoques: ", time_hebb)
-print("Con retoques: ", time_brenner)
-# # Leemos los datos de la simulación y calculamos los autovalores (opcional)
-# archivo_hdf5, X, W, real_eigvals, imag_eigvals = read_data()
-# print("Datos leidos")
-# # skip_frames = 100
-# # animar_autovalores(skip_frames, DT, SKIP, real_eigvals, imag_eigvals)
+#-------------------------------------------------------------------------
 
-# # plt.plot(X[:, 0])
-# # plt.show()
+#############################
+# ANÁLISIS DE LA SIMULACIÓN #
+#############################
 
-# # fig, ax = plt.subplots(ncols=2, figsize=(10,  5))
-# # ax[0].plot(X[:, 0])
-# # ax[1].plot(real_eigvals, 'b.', markersize=1, rasterized=True)
-# # plt.show()
+p_u = np.dot(X[:], u)
+p_v = np.dot(X[:], v)
 
-# # cov = np.cov(X[:], rowvar=False)
-# # eig_cov = np.linalg.eigvalsh(cov)
-# # np.save(f"cov_eig_{DIM}", eig_cov[::-1])
-# # plt.plot(eig_cov[::-1])
-# # plt.show()
+ran_vec1 = np.random.random(DIM)
+ran_vec1 = ran_vec1 / np.linalg.norm(ran_vec1)
 
+ran_vec2 = np.random.random(DIM)
+ran_vec2 = ran_vec2 - np.dot(ran_vec1, ran_vec2) * ran_vec1
+ran_vec2 = ran_vec2 / np.linalg.norm(ran_vec2)
 
-# # Calculamos la energía de la red como E = |X|
-# energy = np.linalg.norm(X[:], axis=1)**2
-# plt.plot(energy)
-# plt.show()
-# plt.loglog(np.abs(np.fft.rfft(energy - np.mean(energy)))**2)
-# plt.show()
-# # fig, ax = plt.subplots(ncols=2, figsize=(10, 5))
-# # ax[0].plot(real_eigvals[:, 0], 'r', linewidth=2, rasterized=True)
-# # ax[0].plot(real_eigvals[:, 2], 'b', linewidth=2, rasterized=True)
-# # ax[1].plot(energy, 'k', rasterized=True)
-# # ax[0].set_xlim([24750, 26750])
-# # ax[1].set_xlim([24750, 26750])
+p_r1 = np.dot(X[:], ran_vec1)
+p_r2 = np.dot(X[:], ran_vec2)
 
-# archivo_hdf5.close()
+plt.plot(np.sqrt(p_r1**2 + p_r2**2), label="Vectores random", alpha=0.8)
+plt.plot(np.sqrt(p_u**2 + p_v**2), label="Vectores uv", alpha=0.8)
+print("<u|v> = ", np.dot(u, v))
+ymin = plt.gca().get_ylim()[0]
+ymax = plt.gca().get_ylim()[1]
+plt.axvspan(1_000_000/SKIP, 1_200_000/SKIP, ymin, ymax, color='red', alpha=0.3)
+plt.legend()
+plt.show()
+
+archivo_hdf5.close()

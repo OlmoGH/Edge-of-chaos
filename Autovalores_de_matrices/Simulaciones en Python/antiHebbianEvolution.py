@@ -62,7 +62,7 @@ def StartSimulation(X, W, ALPHA, DIM, DT, START):
     k4 = np.zeros(DIM, dtype=X.dtype)
 
     for step in range(START):
-        if step % 1_000_000 == 0: 
+        if step % 10_000 == 0: 
             print(f"Simulando paso {step} de {START}")
             print("Paso:", step, "| Max abs(X):", X.max(), "| Max abs(W):", W.max())
         # 1. Empleamos RK4 para la evolución de x
