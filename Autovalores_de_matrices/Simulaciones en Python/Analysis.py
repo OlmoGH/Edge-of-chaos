@@ -5,7 +5,7 @@ from pathlib import Path
 import AntiHebbianMejorado
 from DataManagement import read_data
 from scipy.linalg import null_space
-from eigenshuffle import eigenshuffle_eig
+import STDP
 from numba import njit
 
 @njit(fastmath=True)
@@ -195,54 +195,59 @@ def obtener_mejor_frecuencia(lista_señales, steps, skip, dt):
 #################################
 ## PARÁMETROS DE LA SIMULACIÓN ##
 #################################
+
 ALPHA = 1.0E-4
+TAU = 50
 DT = 0.01
 DIM = 20
 # Pasos simulados y guardados
-SIMULATED_STEPS = 2_000_000
+SIMULATED_STEPS = 1_000_000
 # Pasos previos para el warmup
 START = 1_000_000
 CHUNK_STEPS = 100_000
 SKIP = 10
 SAVED_STEPS = SIMULATED_STEPS//SKIP
-calc_eigenvalues = False
+calc_eigenvalues = True
 
 #Inicializamos la matriz de conexiones y el vector de neuronas
 W = np.random.normal(0, 1.0/np.sqrt(DIM), (DIM, DIM))
 X = np.random.normal(0, 1.0, DIM)
 
-INPUT_X = np.zeros(DIM)
-INPUT_X_RANGE = [-1]
-
+INPUT_X_RANGE = [500_000, 510_000]
+X_in = INPUT_X_RANGE[0]
+X_out = INPUT_X_RANGE[1]
 rng_u = np.random.default_rng(42)
-u = rng_u.standard_normal(DIM)
-u = u / np.linalg.norm(u)
-
 rng_v = np.random.default_rng(69)
-v = rng_v.standard_normal(DIM)
-v = v - np.dot(u, v) * u
-v = v / np.linalg.norm(v)
-INPUT_W = (np.outer(u, v) - np.outer(v, u)) * 10
 
-INPUT_W_RANGE = np.arange(1_000_000, 1_200_000)
+u = rng_u.standard_normal(DIM)
+u = u/np.linalg.norm(u)
+
+v = rng_v.standard_normal(DIM)
+v = v/np.linalg.norm(v)
+
+t_range = np.arange(X_in, X_out)
+freq = 0.01
+INPUT_X = (np.sin(freq * t_range)[:, None] * u + np.cos(freq * t_range)[:, None] * v) * 5
 
 #-------------------------------------------------------------------------
 
 #######################
 # WARMUP Y SIMULACIÓN #
 #######################
+
 # Simulamos los primeros START pasos
 print(f"Simulando los primeros {START} pasos")
-X, W = AntiHebbianMejorado.StartSimulation(X, W, ALPHA, DIM, DT, START)
+X, W, Y = STDP.StartSimulationSTDP(X, W, ALPHA, TAU, DIM, DT, START)
 
 # Simulamos la red con los parámetros dados
-AntiHebbianMejorado.Simulate_and_save(X, W, INPUT_X, INPUT_X_RANGE, INPUT_W, INPUT_W_RANGE, ALPHA, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, calc_eigenvalues)
+STDP.Simulate_and_save_STDP(X, W, Y, INPUT_X, INPUT_X_RANGE, ALPHA, TAU, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, calc_eigenvalues)
 
 #-------------------------------------------------------------------------
 
 ####################
 # LECTURA DE DATOS #
 ####################
+
 # Leemos los datos de la simulación y calculamos los autovalores (opcional)
 archivo_hdf5, X, W, real_eigvals, imag_eigvals = read_data()
 print("Datos leidos")
@@ -253,26 +258,8 @@ print("Datos leidos")
 # ANÁLISIS DE LA SIMULACIÓN #
 #############################
 
-p_u = np.dot(X[:], u)
-p_v = np.dot(X[:], v)
-
-ran_vec1 = np.random.random(DIM)
-ran_vec1 = ran_vec1 / np.linalg.norm(ran_vec1)
-
-ran_vec2 = np.random.random(DIM)
-ran_vec2 = ran_vec2 - np.dot(ran_vec1, ran_vec2) * ran_vec1
-ran_vec2 = ran_vec2 / np.linalg.norm(ran_vec2)
-
-p_r1 = np.dot(X[:], ran_vec1)
-p_r2 = np.dot(X[:], ran_vec2)
-
-plt.plot(np.sqrt(p_r1**2 + p_r2**2), label="Vectores random", alpha=0.8)
-plt.plot(np.sqrt(p_u**2 + p_v**2), label="Vectores uv", alpha=0.8)
-print("<u|v> = ", np.dot(u, v))
-ymin = plt.gca().get_ylim()[0]
-ymax = plt.gca().get_ylim()[1]
-plt.axvspan(1_000_000/SKIP, 1_200_000/SKIP, ymin, ymax, color='red', alpha=0.3)
-plt.legend()
+energy = np.linalg.norm(X[:], axis=1)
+plt.plot(imag_eigvals)
 plt.show()
 
 archivo_hdf5.close()
