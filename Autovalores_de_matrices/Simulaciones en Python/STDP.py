@@ -91,7 +91,9 @@ def ChunkSimulationSTDP(X, W, Y, INPUT_X, INPUT_X_RANGE, ALPHA, TAU, DT, DIM, CH
         # 2. Actualizamos el término de xx^T
         for i in range(DIM):
             for j in range(DIM):
-                W[i, j] += DT * ALPHA * (-X[i] * X[j] + X[i] * Y[j] - X[j] * Y[i])
+                homeostasis = -X[i] * X[j]
+                learning = X[i] * Y[j] - X[j] * Y[i]
+                W[i, j] += DT * ALPHA * (homeostasis + learning)
         
         # Actualizamos la diagonal con la identidad
         for i in range(DIM):
@@ -169,7 +171,9 @@ def StartSimulationSTDP(X, W, ALPHA, TAU, DIM, DT, START):
         # 2. Actualizamos el término de xx^T
         for i in range(DIM):
             for j in range(DIM):
-                W[i, j] += DT * ALPHA * (-X[i] * X[j] + X[i] * Y[j] - X[j] * Y[i])
+                homeostasis = -X[i] * X[j]
+                learning = X[i] * Y[j] - X[j] * Y[i]
+                W[i, j] += DT * ALPHA * (homeostasis + learning)
         
         # Actualizamos la diagonal con la identidad
         for i in range(DIM):

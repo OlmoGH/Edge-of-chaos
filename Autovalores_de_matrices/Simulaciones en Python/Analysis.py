@@ -198,24 +198,23 @@ def obtener_mejor_frecuencia(lista_señales, steps, skip, dt):
 #################################
 
 ALPHA = 0.0001
-TAU_Y = 20
-TAU_X = 50
+TAU = 100
 DT = 0.01
-DIM = 100
+DIM = 30
 # Pasos simulados y guardados
 SIMULATED_STEPS = 1_000_000
 # Pasos previos para el warmup
-START = 1_000_000
+START = 2_000_000
 CHUNK_STEPS = 100_000
 SKIP = 10
 SAVED_STEPS = SIMULATED_STEPS//SKIP
-calc_eigenvalues = False
+calc_eigenvalues = True
 
 #Inicializamos la matriz de conexiones y el vector de neuronas
 W = np.random.normal(0, 1.0/np.sqrt(DIM), (DIM, DIM))
 X = np.random.normal(0, 1.0, DIM)
 
-INPUT_X_RANGE = [500_000, 510_000]
+INPUT_X_RANGE = [500_000, 600_000]
 X_in = INPUT_X_RANGE[0]
 X_out = INPUT_X_RANGE[1]
 rng_u = np.random.default_rng(42)
@@ -227,21 +226,22 @@ u = u/np.linalg.norm(u)
 v = rng_v.standard_normal(DIM)
 v = v/np.linalg.norm(v)
 
-t_range = np.arange(X_in, X_out)
-freq = 0.01
-INPUT_X = (np.sin(freq * t_range)[:, None] * u + np.cos(freq * t_range)[:, None] * v)
+c_u = np.random.standard_normal(X_out-X_in)
+c_v = np.random.standard_normal(X_out-X_in)
+INPUT_X = (np.sin(freq * t_range)[:, None] * u + np.cos(freq * t_range)[:, None] * v) * 5
+
 #-------------------------------------------------------------------------
 
 #######################
 # WARMUP Y SIMULACIÓN #
 #######################
 
-# Simulamos los primeros START pasos
-print(f"Simulando los primeros {START} pasos")
-X, W, Y, X_lp = STDP_susman.StartSimulationSTDP(X, W, ALPHA, TAU_Y, TAU_X, DIM, DT, START)
+# # Simulamos los primeros START pasos
+# print(f"Simulando los primeros {START} pasos")
+# X, W, Y = STDP.StartSimulationSTDP(X, W, ALPHA, TAU, DIM, DT, START)
 
-# Simulamos la red con los parámetros dados
-STDP_susman.Simulate_and_save_STDP(X, W, Y, X_lp, INPUT_X, INPUT_X_RANGE, ALPHA, TAU_Y, TAU_X, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, calc_eigenvalues)
+# # Simulamos la red con los parámetros dados
+# STDP.Simulate_and_save_STDP(X, W, Y, INPUT_X, INPUT_X_RANGE, ALPHA, TAU, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, calc_eigenvalues)
 
 #-------------------------------------------------------------------------
 
@@ -260,9 +260,20 @@ print("Datos leidos")
 #############################
 
 energy = np.linalg.norm(X[:], axis=1)
-plt.plot(energy)
+p_u = np.dot(X[:], u)
+p_v = np.dot(X[:], v)
+
+p_uv = np.sqrt(p_u**2 + p_v**2)
+
+w = np.random.standard_normal(DIM)
+w = w / np.linalg.norm(w)
+p_w = np.dot(X[:], w)
+
+plt.plot(real_eigvals)
 plt.show()
-plt.plot(imag_eigvals)
+plt.plot(p_uv, alpha=0.8, label=r"$P_{uv}$")
+plt.plot(np.abs(p_w), alpha=0.8, label=r"$P_w$")
+plt.legend()
 plt.show()
 
 archivo_hdf5.close()
