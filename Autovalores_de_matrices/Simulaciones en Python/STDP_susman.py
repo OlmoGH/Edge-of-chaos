@@ -29,7 +29,7 @@ def dot_inplace(M, V, out, DIM):
             out[i] += M[i, j] * V[j]
 
 @njit(fastmath=True)
-def ChunkSimulationSTDP(X, W, Y, INPUT_X, INPUT_X_RANGE, ALPHA, TAU, DT, DIM, CHUNK_NUMBER, CHUNK_STEPS, SKIP):
+def ChunkSimulationSTDP(X, W, Y, X_lp, INPUT_X, INPUT_X_RANGE, ALPHA, TAU_Y, TAU_X, DT, DIM, CHUNK_NUMBER, CHUNK_STEPS, SKIP):
     saved_steps = CHUNK_STEPS // SKIP
     BUFFER_X = np.zeros((saved_steps, DIM), dtype=X.dtype)
     BUFFER_W = np.zeros((saved_steps, DIM, DIM), dtype=W.dtype)
@@ -44,6 +44,10 @@ def ChunkSimulationSTDP(X, W, Y, INPUT_X, INPUT_X_RANGE, ALPHA, TAU, DT, DIM, CH
     k2Y = np.empty_like(X)
     k3Y = np.empty_like(X)
     k4Y = np.empty_like(X)
+    k1X_lp = np.empty_like(X)
+    k2X_lp = np.empty_like(X)
+    k3X_lp = np.empty_like(X)
+    k4X_lp = np.empty_like(X)
 
     for step in range(CHUNK_STEPS):
         buffer_index = step//SKIP
@@ -55,43 +59,51 @@ def ChunkSimulationSTDP(X, W, Y, INPUT_X, INPUT_X_RANGE, ALPHA, TAU, DT, DIM, CH
 
         # 1. Empleamos RK4 para la evolución de X y de Y
         # Calculamos k1X
-        dot_inplace(W, X, k1X, DIM)
+        dot_inplace(W, np.tanh(X), k1X, DIM)
         # Calculamos k1Y
         for i in range(DIM):
             k1X[i] -= X[i]
-            k1Y[i] = (X[i] - Y[i])/TAU
+            k1Y[i] = (np.tanh(X[i]) - Y[i])/TAU_Y
+            k1X_lp[i] = (X[i] - X_lp[i])/TAU_X
         
         # Calculamos k2X
         for i in range(DIM): temp_X[i] = X[i] + 0.5 * k1X[i] * DT
-        dot_inplace(W, temp_X, k2X, DIM)
+        dot_inplace(W, np.tanh(temp_X), k2X, DIM)
         # Calculamos k2Y
         for i in range(DIM):
             # k2Y = (X - Y_1)/TAU
             # Y_1 = Y + 0.5 * k1Y
             k2X[i] -= temp_X[i]
-            k2Y[i] = (temp_X[i] - (Y[i] + 0.5 * k1Y[i] * DT))/TAU
+            k2Y[i] = (np.tanh(temp_X[i]) - (Y[i] + 0.5 * k1Y[i] * DT))/TAU_Y
+            k2X_lp[i] = (temp_X[i] - X_lp[i])/TAU_X
 
         # Calculamos k3X
         for i in range(DIM): temp_X[i] = X[i] + 0.5 * k2X[i] * DT
-        dot_inplace(W, temp_X, k3X, DIM)
+        dot_inplace(W, np.tanh(temp_X), k3X, DIM)
         # Calculamos k3Y
         for i in range(DIM):
             k3X[i] -= temp_X[i]
-            k3Y[i] = (temp_X[i] - (Y[i] + 0.5 * k2Y[i] * DT))/TAU
+            k3Y[i] = (np.tanh(temp_X[i]) - (Y[i] + 0.5 * k2Y[i] * DT))/TAU_Y
+            k3X_lp[i] = (temp_X[i] - X_lp[i])/TAU_X
+
 
 
         # Calculamos k4X
         for i in range(DIM): temp_X[i] = X[i] + k3X[i] * DT
-        dot_inplace(W, temp_X, k4X, DIM)
+        dot_inplace(W, np.tanh(temp_X), k4X, DIM)
         # Calculamos k4X
         for i in range(DIM):
             k4X[i] -= temp_X[i]
-            k4Y[i] = (temp_X[i] - (Y[i] + k3Y[i] * DT))/TAU
+            k4Y[i] = (np.tanh(temp_X[i]) - (Y[i] + k3Y[i] * DT))/TAU_Y
+            k4X_lp[i] = (temp_X[i] - X_lp[i])/TAU_X
+
 
         # 2. Actualizamos el término de xx^T
         for i in range(DIM):
             for j in range(DIM):
-                W[i, j] += DT * ALPHA * (-X[i] * X[j] + X[i] * Y[j] - X[j] * Y[i])
+                homeostasis = -np.tanh(X[i] - X_lp[i]) * np.tanh(X[j])
+                learning = np.tanh(X[i]) * Y[j] - np.tanh(X[j]) * Y[i]
+                W[i, j] += DT * ALPHA * (homeostasis + learning)
         
         # Actualizamos la diagonal con la identidad
         for i in range(DIM):
@@ -102,20 +114,23 @@ def ChunkSimulationSTDP(X, W, Y, INPUT_X, INPUT_X_RANGE, ALPHA, TAU, DT, DIM, CH
             for i in range(DIM):
                 X[i] += DT * (k1X[i] + 2 * k2X[i] + 2 * k3X[i] + k4X[i]) / 6.0 + DT * INPUT_X[global_step - INPUT_X_RANGE[0], i]
                 Y[i] += DT * (k1Y[i] + 2 * k2Y[i] + 2 * k3Y[i] + k4Y[i]) / 6.0 
+                X_lp[i] += DT * (k1X_lp[i] + 2 * k2X_lp[i] + 2 * k3X_lp[i] + k4X_lp[i]) / 6.0
         else:
             for i in range(DIM):
                 X[i] += DT * (k1X[i] + 2 * k2X[i] + 2 * k3X[i] + k4X[i]) / 6.0           
-                Y[i] += DT * (k1Y[i] + 2 * k2Y[i] + 2 * k3Y[i] + k4Y[i]) / 6.0           
+                Y[i] += DT * (k1Y[i] + 2 * k2Y[i] + 2 * k3Y[i] + k4Y[i]) / 6.0         
+                X_lp[i] += DT * (k1X_lp[i] + 2 * k2X_lp[i] + 2 * k3X_lp[i] + k4X_lp[i]) / 6.0  
 
 
 
     return X, W, BUFFER_X, BUFFER_W
 
 @njit(fastmath=True)
-def StartSimulationSTDP(X, W, ALPHA, TAU, DIM, DT, START):
+def StartSimulationSTDP(X, W, ALPHA, TAU_Y, TAU_X, DIM, DT, START):
     
     # Pre-alocamos los arrays temporales
     Y = np.zeros_like(X)
+    X_lp = np.zeros_like(X)
     temp_X = np.empty_like(X)
     k1X = np.empty_like(X)
     k2X = np.empty_like(X)
@@ -125,6 +140,10 @@ def StartSimulationSTDP(X, W, ALPHA, TAU, DIM, DT, START):
     k2Y = np.empty_like(X)
     k3Y = np.empty_like(X)
     k4Y = np.empty_like(X)
+    k1X_lp = np.empty_like(X)
+    k2X_lp = np.empty_like(X)
+    k3X_lp = np.empty_like(X)
+    k4X_lp = np.empty_like(X)
 
     for step in range(START):
         if step % 100_000 == 0: 
@@ -133,43 +152,51 @@ def StartSimulationSTDP(X, W, ALPHA, TAU, DIM, DT, START):
 
         # 1. Empleamos RK4 para la evolución de X y de Y
         # Calculamos k1X
-        dot_inplace(W, X, k1X, DIM)
+        dot_inplace(W, np.tanh(X), k1X, DIM)
         # Calculamos k1Y
         for i in range(DIM):
             k1X[i] -= X[i]
-            k1Y[i] = (X[i] - Y[i])/TAU
+            k1Y[i] = (np.tanh(X[i]) - Y[i])/TAU_Y
+            k1X_lp[i] = (X[i] - X_lp[i])/TAU_X
         
         # Calculamos k2X
         for i in range(DIM): temp_X[i] = X[i] + 0.5 * k1X[i] * DT
-        dot_inplace(W, temp_X, k2X, DIM)
+        dot_inplace(W, np.tanh(temp_X), k2X, DIM)
         # Calculamos k2Y
         for i in range(DIM):
             # k2Y = (X - Y_1)/TAU
             # Y_1 = Y + 0.5 * k1Y
             k2X[i] -= temp_X[i]
-            k2Y[i] = (temp_X[i] - (Y[i] + 0.5 * k1Y[i] * DT))/TAU
+            k2Y[i] = (np.tanh(temp_X[i]) - (Y[i] + 0.5 * k1Y[i] * DT))/TAU_Y
+            k2X_lp[i] = (temp_X[i] - X_lp[i])/TAU_X
 
         # Calculamos k3X
         for i in range(DIM): temp_X[i] = X[i] + 0.5 * k2X[i] * DT
-        dot_inplace(W, temp_X, k3X, DIM)
+        dot_inplace(W, np.tanh(temp_X), k3X, DIM)
         # Calculamos k3Y
         for i in range(DIM):
             k3X[i] -= temp_X[i]
-            k3Y[i] = (temp_X[i] - (Y[i] + 0.5 * k2Y[i] * DT))/TAU
+            k3Y[i] = (np.tanh(temp_X[i]) - (Y[i] + 0.5 * k2Y[i] * DT))/TAU_Y
+            k3X_lp[i] = (temp_X[i] - X_lp[i])/TAU_X
+
 
 
         # Calculamos k4X
         for i in range(DIM): temp_X[i] = X[i] + k3X[i] * DT
-        dot_inplace(W, temp_X, k4X, DIM)
+        dot_inplace(W, np.tanh(temp_X), k4X, DIM)
         # Calculamos k4X
         for i in range(DIM):
             k4X[i] -= temp_X[i]
-            k4Y[i] = (temp_X[i] - (Y[i] + k3Y[i] * DT))/TAU
+            k4Y[i] = (np.tanh(temp_X[i]) - (Y[i] + k3Y[i] * DT))/TAU_Y
+            k4X_lp[i] = (temp_X[i] - X_lp[i])/TAU_X
+
 
         # 2. Actualizamos el término de xx^T
         for i in range(DIM):
             for j in range(DIM):
-                W[i, j] += DT * ALPHA * (-X[i] * X[j] + X[i] * Y[j] - X[j] * Y[i])
+                homeostasis = -np.tanh(X[i] - X_lp[i]) * np.tanh(X[j])
+                learning = np.tanh(X[i]) * Y[j] - np.tanh(X[j]) * Y[i]
+                W[i, j] += DT * ALPHA * (homeostasis + learning)
         
         # Actualizamos la diagonal con la identidad
         for i in range(DIM):
@@ -177,12 +204,13 @@ def StartSimulationSTDP(X, W, ALPHA, TAU, DIM, DT, START):
 
         # 3. Actualizamos X e Y
         for i in range(DIM):
-            X[i] += DT * (k1X[i] + 2 * k2X[i] + 2 * k3X[i] + k4X[i]) / 6.0
-            Y[i] += DT * (k1Y[i] + 2 * k2Y[i] + 2 * k3Y[i] + k4Y[i]) / 6.0
+            X[i] += DT * (k1X[i] + 2 * k2X[i] + 2 * k3X[i] + k4X[i]) / 6.0           
+            Y[i] += DT * (k1Y[i] + 2 * k2Y[i] + 2 * k3Y[i] + k4Y[i]) / 6.0           
+            X_lp[i] += DT * (k1X_lp[i] + 2 * k2X_lp[i] + 2 * k3X_lp[i] + k4X_lp[i]) / 6.0           
 
-    return X, W, Y
+    return X, W, Y, X_lp
 
-def Simulate_and_save_STDP(X, W, Y, INPUT_X, INPUT_X_RANGE, ALPHA, TAU, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, calc_eigenvalues=False):
+def Simulate_and_save_STDP(X, W, Y, X_lp, INPUT_X, INPUT_X_RANGE, ALPHA, TAU_Y, TAU_X, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, calc_eigenvalues=False):
 
     # Creamos o sobreescribimos el archivo hdf5 donde vamos a guardar los datos
     directorio_script = Path(__file__).parent
@@ -221,7 +249,7 @@ def Simulate_and_save_STDP(X, W, Y, INPUT_X, INPUT_X_RANGE, ALPHA, TAU, DT, DIM,
             final_index = initial_index + CHUNK_STEPS//SKIP
 
             # Llamamos a la función para que haga la simulación del lote
-            X, W, BUFFER_X, BUFFER_W = ChunkSimulationSTDP(X, W, Y, INPUT_X, INPUT_X_RANGE, ALPHA, TAU, DT, DIM, i, CHUNK_STEPS, SKIP)
+            X, W, BUFFER_X, BUFFER_W = ChunkSimulationSTDP(X, W, Y, X_lp, INPUT_X, INPUT_X_RANGE, ALPHA, TAU_Y, TAU_X, DT, DIM, i, CHUNK_STEPS, SKIP)
 
             # Guardamos los buffer en el dataset
             dataset_X[initial_index:final_index] = BUFFER_X

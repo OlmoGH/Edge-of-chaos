@@ -6,6 +6,7 @@ import AntiHebbianMejorado
 from DataManagement import read_data
 from scipy.linalg import null_space
 import STDP
+import STDP_susman
 from numba import njit
 
 @njit(fastmath=True)
@@ -196,10 +197,11 @@ def obtener_mejor_frecuencia(lista_señales, steps, skip, dt):
 ## PARÁMETROS DE LA SIMULACIÓN ##
 #################################
 
-ALPHA = 1.0E-4
-TAU = 50
+ALPHA = 0.0001
+TAU_Y = 20
+TAU_X = 50
 DT = 0.01
-DIM = 20
+DIM = 100
 # Pasos simulados y guardados
 SIMULATED_STEPS = 1_000_000
 # Pasos previos para el warmup
@@ -207,7 +209,7 @@ START = 1_000_000
 CHUNK_STEPS = 100_000
 SKIP = 10
 SAVED_STEPS = SIMULATED_STEPS//SKIP
-calc_eigenvalues = True
+calc_eigenvalues = False
 
 #Inicializamos la matriz de conexiones y el vector de neuronas
 W = np.random.normal(0, 1.0/np.sqrt(DIM), (DIM, DIM))
@@ -227,8 +229,7 @@ v = v/np.linalg.norm(v)
 
 t_range = np.arange(X_in, X_out)
 freq = 0.01
-INPUT_X = (np.sin(freq * t_range)[:, None] * u + np.cos(freq * t_range)[:, None] * v) * 5
-
+INPUT_X = (np.sin(freq * t_range)[:, None] * u + np.cos(freq * t_range)[:, None] * v)
 #-------------------------------------------------------------------------
 
 #######################
@@ -237,10 +238,10 @@ INPUT_X = (np.sin(freq * t_range)[:, None] * u + np.cos(freq * t_range)[:, None]
 
 # Simulamos los primeros START pasos
 print(f"Simulando los primeros {START} pasos")
-X, W, Y = STDP.StartSimulationSTDP(X, W, ALPHA, TAU, DIM, DT, START)
+X, W, Y, X_lp = STDP_susman.StartSimulationSTDP(X, W, ALPHA, TAU_Y, TAU_X, DIM, DT, START)
 
 # Simulamos la red con los parámetros dados
-STDP.Simulate_and_save_STDP(X, W, Y, INPUT_X, INPUT_X_RANGE, ALPHA, TAU, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, calc_eigenvalues)
+STDP_susman.Simulate_and_save_STDP(X, W, Y, X_lp, INPUT_X, INPUT_X_RANGE, ALPHA, TAU_Y, TAU_X, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, calc_eigenvalues)
 
 #-------------------------------------------------------------------------
 
@@ -259,6 +260,8 @@ print("Datos leidos")
 #############################
 
 energy = np.linalg.norm(X[:], axis=1)
+plt.plot(energy)
+plt.show()
 plt.plot(imag_eigvals)
 plt.show()
 
