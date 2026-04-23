@@ -198,11 +198,13 @@ def obtener_mejor_frecuencia(lista_señales, steps, skip, dt):
 #################################
 
 ALPHA = 0.0001
-TAU = 100
+TAU = 20
+TAU_Y = 20
+TAU_X = 50
 DT = 0.01
 DIM = 30
 # Pasos simulados y guardados
-SIMULATED_STEPS = 1_000_000
+SIMULATED_STEPS = 3_000_000
 # Pasos previos para el warmup
 START = 2_000_000
 CHUNK_STEPS = 100_000
@@ -226,9 +228,17 @@ u = u/np.linalg.norm(u)
 v = rng_v.standard_normal(DIM)
 v = v/np.linalg.norm(v)
 
-c_u = np.random.standard_normal(X_out-X_in)
-c_v = np.random.standard_normal(X_out-X_in)
-INPUT_X = (np.sin(freq * t_range)[:, None] * u + np.cos(freq * t_range)[:, None] * v) * 5
+# Tomamos los coeficientes de un prceso de Ornstein-Uhlenbeck
+tau_ou = 10.0  # tiempo de correlación en unidades de tiempo
+dt = DT
+steps = X_out - X_in
+c_u = np.zeros(steps)
+c_v = np.zeros(steps)
+for i in range(1, steps):
+    c_u[i] = c_u[i-1] + (dt / tau_ou) * (-c_u[i-1]) + np.sqrt(2 * dt / tau_ou) * np.random.randn()
+    c_v[i] = c_v[i-1] + (dt / tau_ou) * (-c_v[i-1]) + np.sqrt(2 * dt / tau_ou) * np.random.randn()
+
+INPUT_X =  (c_u[:, None] * u[None, :] + c_v[:, None] * v[None, :]) * 5
 
 #-------------------------------------------------------------------------
 
@@ -236,12 +246,14 @@ INPUT_X = (np.sin(freq * t_range)[:, None] * u + np.cos(freq * t_range)[:, None]
 # WARMUP Y SIMULACIÓN #
 #######################
 
-# # Simulamos los primeros START pasos
+# Simulamos los primeros START pasos
 # print(f"Simulando los primeros {START} pasos")
-# X, W, Y = STDP.StartSimulationSTDP(X, W, ALPHA, TAU, DIM, DT, START)
+X, W, Y = STDP.StartSimulationSTDP(X, W, ALPHA, TAU, DIM, DT, START)
+# X, W, Y, X_lp = STDP_susman.StartSimulationSTDP(X, W, ALPHA, TAU_Y, TAU_X, DIM, DT, START)
 
-# # Simulamos la red con los parámetros dados
-# STDP.Simulate_and_save_STDP(X, W, Y, INPUT_X, INPUT_X_RANGE, ALPHA, TAU, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, calc_eigenvalues)
+# Simulamos la red con los parámetros dados
+STDP.Simulate_and_save_STDP(X, W, Y, INPUT_X, INPUT_X_RANGE, ALPHA, TAU, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, calc_eigenvalues)
+# STDP_susman.Simulate_and_save_STDP(X, W, Y, X_lp, INPUT_X, INPUT_X_RANGE, ALPHA, TAU_Y, TAU_X, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, calc_eigenvalues)
 
 #-------------------------------------------------------------------------
 
@@ -269,7 +281,9 @@ w = np.random.standard_normal(DIM)
 w = w / np.linalg.norm(w)
 p_w = np.dot(X[:], w)
 
-plt.plot(real_eigvals)
+fig, ax = plt.subplots(ncols=2)
+ax[0].plot(imag_eigvals)
+ax[1].plot(real_eigvals)
 plt.show()
 plt.plot(p_uv, alpha=0.8, label=r"$P_{uv}$")
 plt.plot(np.abs(p_w), alpha=0.8, label=r"$P_w$")

@@ -22,6 +22,10 @@ def sort_eigenvalues(last_sorted, chunk_eigvals):
     return sorted_eigvals
 
 @njit(fastmath=True)
+def phi(X):
+    return 1/(1+X**2)
+
+@njit(fastmath=True)
 def dot_inplace(M, V, out, DIM):
     for i in range(DIM):
         out[i] = 0
@@ -59,50 +63,50 @@ def ChunkSimulationSTDP(X, W, Y, X_lp, INPUT_X, INPUT_X_RANGE, ALPHA, TAU_Y, TAU
 
         # 1. Empleamos RK4 para la evolución de X y de Y
         # Calculamos k1X
-        dot_inplace(W, np.tanh(X), k1X, DIM)
+        dot_inplace(W, phi(X), k1X, DIM)
         # Calculamos k1Y
         for i in range(DIM):
             k1X[i] -= X[i]
-            k1Y[i] = (np.tanh(X[i]) - Y[i])/TAU_Y
+            k1Y[i] = (phi(X[i]) - Y[i])/TAU_Y
             k1X_lp[i] = (X[i] - X_lp[i])/TAU_X
         
         # Calculamos k2X
         for i in range(DIM): temp_X[i] = X[i] + 0.5 * k1X[i] * DT
-        dot_inplace(W, np.tanh(temp_X), k2X, DIM)
+        dot_inplace(W, phi(temp_X), k2X, DIM)
         # Calculamos k2Y
         for i in range(DIM):
             # k2Y = (X - Y_1)/TAU
             # Y_1 = Y + 0.5 * k1Y
             k2X[i] -= temp_X[i]
-            k2Y[i] = (np.tanh(temp_X[i]) - (Y[i] + 0.5 * k1Y[i] * DT))/TAU_Y
+            k2Y[i] = (phi(temp_X[i]) - (Y[i] + 0.5 * k1Y[i] * DT))/TAU_Y
             k2X_lp[i] = (temp_X[i] - X_lp[i])/TAU_X
 
         # Calculamos k3X
         for i in range(DIM): temp_X[i] = X[i] + 0.5 * k2X[i] * DT
-        dot_inplace(W, np.tanh(temp_X), k3X, DIM)
+        dot_inplace(W, phi(temp_X), k3X, DIM)
         # Calculamos k3Y
         for i in range(DIM):
             k3X[i] -= temp_X[i]
-            k3Y[i] = (np.tanh(temp_X[i]) - (Y[i] + 0.5 * k2Y[i] * DT))/TAU_Y
+            k3Y[i] = (phi(temp_X[i]) - (Y[i] + 0.5 * k2Y[i] * DT))/TAU_Y
             k3X_lp[i] = (temp_X[i] - X_lp[i])/TAU_X
 
 
 
         # Calculamos k4X
         for i in range(DIM): temp_X[i] = X[i] + k3X[i] * DT
-        dot_inplace(W, np.tanh(temp_X), k4X, DIM)
+        dot_inplace(W, phi(temp_X), k4X, DIM)
         # Calculamos k4X
         for i in range(DIM):
             k4X[i] -= temp_X[i]
-            k4Y[i] = (np.tanh(temp_X[i]) - (Y[i] + k3Y[i] * DT))/TAU_Y
+            k4Y[i] = (phi(temp_X[i]) - (Y[i] + k3Y[i] * DT))/TAU_Y
             k4X_lp[i] = (temp_X[i] - X_lp[i])/TAU_X
 
 
         # 2. Actualizamos el término de xx^T
         for i in range(DIM):
             for j in range(DIM):
-                homeostasis = -np.tanh(X[i] - X_lp[i]) * np.tanh(X[j])
-                learning = np.tanh(X[i]) * Y[j] - np.tanh(X[j]) * Y[i]
+                homeostasis = -phi(X[i] - X_lp[i]) * phi(X[j])
+                learning = phi(X[i]) * Y[j] - phi(X[j]) * Y[i]
                 W[i, j] += DT * ALPHA * (homeostasis + learning)
         
         # Actualizamos la diagonal con la identidad
@@ -152,50 +156,50 @@ def StartSimulationSTDP(X, W, ALPHA, TAU_Y, TAU_X, DIM, DT, START):
 
         # 1. Empleamos RK4 para la evolución de X y de Y
         # Calculamos k1X
-        dot_inplace(W, np.tanh(X), k1X, DIM)
+        dot_inplace(W, phi(X), k1X, DIM)
         # Calculamos k1Y
         for i in range(DIM):
             k1X[i] -= X[i]
-            k1Y[i] = (np.tanh(X[i]) - Y[i])/TAU_Y
+            k1Y[i] = (phi(X[i]) - Y[i])/TAU_Y
             k1X_lp[i] = (X[i] - X_lp[i])/TAU_X
         
         # Calculamos k2X
         for i in range(DIM): temp_X[i] = X[i] + 0.5 * k1X[i] * DT
-        dot_inplace(W, np.tanh(temp_X), k2X, DIM)
+        dot_inplace(W, phi(temp_X), k2X, DIM)
         # Calculamos k2Y
         for i in range(DIM):
             # k2Y = (X - Y_1)/TAU
             # Y_1 = Y + 0.5 * k1Y
             k2X[i] -= temp_X[i]
-            k2Y[i] = (np.tanh(temp_X[i]) - (Y[i] + 0.5 * k1Y[i] * DT))/TAU_Y
+            k2Y[i] = (phi(temp_X[i]) - (Y[i] + 0.5 * k1Y[i] * DT))/TAU_Y
             k2X_lp[i] = (temp_X[i] - X_lp[i])/TAU_X
 
         # Calculamos k3X
         for i in range(DIM): temp_X[i] = X[i] + 0.5 * k2X[i] * DT
-        dot_inplace(W, np.tanh(temp_X), k3X, DIM)
+        dot_inplace(W, phi(temp_X), k3X, DIM)
         # Calculamos k3Y
         for i in range(DIM):
             k3X[i] -= temp_X[i]
-            k3Y[i] = (np.tanh(temp_X[i]) - (Y[i] + 0.5 * k2Y[i] * DT))/TAU_Y
+            k3Y[i] = (phi(temp_X[i]) - (Y[i] + 0.5 * k2Y[i] * DT))/TAU_Y
             k3X_lp[i] = (temp_X[i] - X_lp[i])/TAU_X
 
 
 
         # Calculamos k4X
         for i in range(DIM): temp_X[i] = X[i] + k3X[i] * DT
-        dot_inplace(W, np.tanh(temp_X), k4X, DIM)
+        dot_inplace(W, phi(temp_X), k4X, DIM)
         # Calculamos k4X
         for i in range(DIM):
             k4X[i] -= temp_X[i]
-            k4Y[i] = (np.tanh(temp_X[i]) - (Y[i] + k3Y[i] * DT))/TAU_Y
+            k4Y[i] = (phi(temp_X[i]) - (Y[i] + k3Y[i] * DT))/TAU_Y
             k4X_lp[i] = (temp_X[i] - X_lp[i])/TAU_X
 
 
         # 2. Actualizamos el término de xx^T
         for i in range(DIM):
             for j in range(DIM):
-                homeostasis = -np.tanh(X[i] - X_lp[i]) * np.tanh(X[j])
-                learning = np.tanh(X[i]) * Y[j] - np.tanh(X[j]) * Y[i]
+                homeostasis = -phi(X[i] - X_lp[i]) * phi(X[j])
+                learning = phi(X[i]) * Y[j] - phi(X[j]) * Y[i]
                 W[i, j] += DT * ALPHA * (homeostasis + learning)
         
         # Actualizamos la diagonal con la identidad
