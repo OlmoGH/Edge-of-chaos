@@ -1,173 +1,154 @@
 import numpy as np
-from numba import njit
 import matplotlib.pyplot as plt
-import time
 from scipy.optimize import linear_sum_assignment
-import scipy.io as sio
+import scipy.io as sio  # <-- NUEVA IMPORTACIÓN PARA LEER .mat
+import sys
+import os
 
-def sort_eigenvalues(last_sorted, chunk_eigvals):
-    sorted_eigvals = np.zeros_like(chunk_eigvals)
-    T, DIM = np.shape(chunk_eigvals)
+def sort_eigenvalues(last_sorted, current_eigvals):
+    """
+    Función auxiliar para hacer el seguimiento (eigenshuffle) de los autovalores 
+    a través del tiempo asociando los más cercanos.
+    """
     if last_sorted is None:
-        sorted_eigvals[0] = chunk_eigvals[0]
-    else:
-        cost_matrix = np.abs(last_sorted[:, None] - chunk_eigvals[0][None, :])
-        row_index, col_index = linear_sum_assignment(cost_matrix)
-        sorted_eigvals[0] = chunk_eigvals[0][col_index]
+        return current_eigvals
+    cost_matrix = np.abs(last_sorted[:, None] - current_eigvals[None, :])
+    row_index, col_index = linear_sum_assignment(cost_matrix)
+    return current_eigvals[col_index]
 
-    for i in range(1, T):
-        cost_matrix = np.abs(sorted_eigvals[i-1][:, None] - chunk_eigvals[i][None, :])
-        row_index, col_index = linear_sum_assignment(cost_matrix)
-        sorted_eigvals[i] = chunk_eigvals[i][col_index]
+# %%%% Carga de datos pre-inicializados desde data.mat
+# Buscamos 'data.mat' en el mismo directorio que este script
+directorio_actual = os.path.dirname(os.path.abspath(__file__)) if '__file__' in globals() else '.'
+ruta_mat = os.path.join(directorio_actual, 'data.mat')
 
-    return sorted_eigvals
+# Cargamos el archivo. 
+# squeeze_me y struct_as_record nos permiten usar la sintaxis "data.W" en lugar de diccionarios anidados complejos.
+mat_contents = sio.loadmat(ruta_mat, squeeze_me=True, struct_as_record=False)
 
+# Extraemos la estructura 'data'
+data = mat_contents['data']
 
-# ============================================================================
-# 1. PARÁMETROS DEL MODELO 
-# ============================================================================
+# Fijamos la semilla exactamente como en MATLAB
+# Comprobamos si es una estructura de MATLAB (estado del RNG) o un número directo
+try:
+    seed = int(data.decseed.Seed)
+except AttributeError:
+    seed = int(data.decseed)
 
-np.random.seed(42)
+np.random.seed(seed)
 
-N = 128           
-Nmem = 1          
-dt = 0.1          
-eta = 0.01        
-tau = 50.0        
-taux = 20.0       
-zeta = 0.01       
-amp = 25.0        
+# %%%% Parámetros iniciales
+N = 128
+Nmem = 1
+dt = 0.1
+eta = 0.01
+tau = 50.0
+zeta = 0.01
+amp = 25.0
+inLen = int(100 / dt)
+spacing = int(1000 / dt)
 
-inLen = int(100 / dt)           
-spacing = int(1000 / dt)        
-spacing0 = int(200 / dt)        
+# --- MODIFICACIÓN AQUÍ ---
+# Aumentamos spacing0 para que el input ocurra más tarde. 
+# Antes era 200, ahora es 800 (empezará en el tiempo t=800).
+spacing0 = int(800 / dt) 
+# -------------------------
 
 TotalSteps = spacing0 + (inLen + spacing) * Nmem
-CalcEvery = int(10 / dt)        
+CalcEvery = int(10 / dt)
 Nsteps = TotalSteps // CalcEvery
 
-# ============================================================================
-# 2. INICIALIZACIÓN DE VARIABLES Y ESTÍMULOS
-# ============================================================================
+# Inicialización de variables
+y = np.zeros(N)
+z = np.zeros(N)
+x_all = np.zeros((N, TotalSteps))
 
-y = np.zeros(N)                 
-z = np.zeros(N)                 
-input_vec = np.zeros(N)         
-xlp = np.zeros(N)               
-B = 0.5 * np.eye(N)             
-
-H = np.sign(np.random.randn(N, N)) 
-u = H[0:Nmem, :].T / np.sqrt(N)        
-v = H[Nmem:2*Nmem, :].T / np.sqrt(N)   
+H = np.sign(np.random.randn(N, N))
+u = H[0:Nmem, :].T / np.sqrt(N)
+v = H[Nmem:2*Nmem, :].T / np.sqrt(N)
 
 input1 = np.zeros((N, TotalSteps))
 input2 = np.zeros((N, TotalSteps))
+W_all = np.zeros((Nsteps, N, N))
+inp = np.zeros(N)
+B = np.eye(N)
 
+# --- CARGAMOS W Y X DESDE EL ARCHIVO MAT ---
+W = data.W.copy()
+x = data.x.copy()
+# -------------------------------------------
+
+print('Simulating, please wait...')
+
+# %%%% Construct input signal for learning
 for i in range(Nmem):
-    base = spacing0 + i * (inLen + spacing)
-    for j in range(inLen):
-        input1[:, base + j] = u[:, i]
-        input2[:, base + j] = v[:, i]
+    base = i * spacing + spacing0
+    input1[:, base:base+inLen] = np.tile(u[:, i:i+1], (1, inLen))
+    input2[:, base:base+inLen] = np.tile(v[:, i:i+1], (1, inLen))
 
-# Cargamos el estado exacto del que parten los autores
-print("Cargando condiciones iniciales de data.mat...")
-mat_contents = sio.loadmat('data.mat')
-
-try:
-    W = mat_contents['data']['W'][0,0]
-    x = mat_contents['data']['x'][0,0].flatten()
-except KeyError:
-    W = mat_contents['W']
-    x = mat_contents['x'].flatten()
-
-# Nos aseguramos de que el tipo de dato sea float64 para Numba
-W = np.ascontiguousarray(W, dtype=np.float64)
-x = np.ascontiguousarray(x, dtype=np.float64)            
-
-# ============================================================================
-# 3. BUCLE DE SIMULACIÓN OPTIMIZADO CON NUMBA
-# ============================================================================
-
-@njit(fastmath=True)
-def EvolveNetwork(x, W, y, xlp, input_vec, input1, input2, B, TotalSteps, CalcEvery, Nsteps, N, dt, taux, tau, zeta, amp, eta):
+# %%%% Evolve network
+for i in range(TotalSteps):
     
-    x_all = np.zeros((N, TotalSteps))
-    W_all = np.zeros((N, N, Nsteps))
-    idx_W = 0 
+    if i % CalcEvery == 0:
+        W_all[i // CalcEvery] = W.copy()
+        if (i // CalcEvery) % (Nsteps // 10) == 0:
+            sys.stdout.write(f"\rProgreso: {(i/TotalSteps)*100:.0f}%")
+            sys.stdout.flush()
+            
+    x_all[:, i] = x.copy()
     
-    # --- NUEVO: Calculamos cada cuántos pasos hacer el print (ej: cada 10%) ---
-    print_interval = TotalSteps // 10
-    if print_interval == 0:
-        print_interval = 1
+    # Ruido de entrada con Ornstein-Uhlenbeck 
+    inp = inp + (-inp * zeta + np.random.randn() * input1[:, i] + np.random.randn() * input2[:, i]) * dt
+    
+    dxdt = np.dot(W, x) + amp * inp
+    dydt = (x - y) / tau  
+    
+    # Actualización de Euler en cascada / secuencia
+    noise_W = np.random.randn(N, N) / np.sqrt(N)
+    dW = (B - np.outer(x, x) + noise_W) + (np.outer(x, y) - np.outer(y, x))
+    W = W + eta * dW * dt
+    
+    x = x + dxdt * dt
+    y = y + dydt * dt
 
-    for i in range(TotalSteps):
-        
-        # --- NUEVO: Print de progreso dentro de Numba ---
-        if i % print_interval == 0:
-            print("Simulando paso", i, "/", TotalSteps, "(", int(i/TotalSteps * 100), "% )")
-            
-        if i % CalcEvery == 0 and idx_W < Nsteps:
-            W_all[:, :, idx_W] = W
-            idx_W += 1
-            
-        x_all[:, i] = x
-        r = np.tanh(x)
-        xlp = xlp + ((-xlp + x / 1e-2) / taux) * dt
-        
-        noise1 = np.random.randn() 
-        noise2 = np.random.randn()
-        input_vec = input_vec + (-zeta * input_vec + noise1 * input1[:, i] + noise2 * input2[:, i]) * dt
-        
-        y = y + (r - y) * dt / tau
-        x = x + (-x + np.dot(W, r) + amp * input_vec) * dt
-        
-        homeostasis = B - np.outer(np.tanh(x - xlp), r)
-        mat_noise = np.random.randn(N, N) / np.sqrt(N)
-        stdp = np.outer(r, y) - np.outer(y, r)
-        
-        W = W + eta * (homeostasis + mat_noise + stdp) * dt
-        
-    return x_all, W_all, W, x
+print("\rProgreso: 100%")
 
-# ============================================================================
-# 4. EJECUCIÓN 
-# ============================================================================
+# %%%% Compute eigenspectrum of W over time
+Dseq = np.zeros((Nsteps, N), dtype=complex)
+last_sorted = None
+for i in range(Nsteps):
+    eigvals = np.linalg.eigvals(W_all[i])
+    sorted_eigvals = sort_eigenvalues(last_sorted, eigvals)
+    Dseq[i] = sorted_eigvals
+    last_sorted = sorted_eigvals
 
-print("Simulando red... (La primera vez tardará unos segundos en compilar Numba)")
-start_time = time.time()
+# Transponemos Dseq para que sea (N x Nsteps)
+Dseq = Dseq.T
 
-x_all, W_all, W_final, x_final = EvolveNetwork(
-    x, W, y, xlp, input_vec, input1, input2, B, 
-    TotalSteps, CalcEvery, Nsteps, N, dt, taux, tau, zeta, amp, eta
-)
+I = np.argsort(np.imag(Dseq[:, -1]))[::-1]
+taxis = np.arange(1, Nsteps + 1) * CalcEvery * dt
 
-print(f"Simulación completada en {time.time() - start_time:.2f} segundos.")
+# %%%% Plot spectrum
+plt.figure(figsize=(10, 8))
 
-# ============================================================================
-# 5. ANÁLISIS Y GRÁFICA CON SOMBREADO
-# ============================================================================
+# Subplot 1: Real Part
+plt.subplot(2, 1, 1)
+for j in range(N):
+    plt.plot(taxis, np.real(Dseq[I[j], :]), linewidth=2, color=[0.8, 0.8, 0.8])
+plt.plot(taxis, np.real(Dseq[I[0], :]), linewidth=2, color=[0.47, 0.67, 0.19])
+plt.plot(taxis, np.real(Dseq[I[-1], :]), linewidth=2, color=[0.47, 0.67, 0.19])
+plt.ylabel('Re($\lambda$)', fontsize=14)
+plt.tick_params(labelsize=12)
 
-print("Calculando y ordenando autovalores...")
-eigenvalues = np.linalg.eigvals(np.transpose(W_all, axes=[2, 0, 1]))
-sorted_eigvals = sort_eigenvalues(None, eigenvalues)
+# Subplot 2: Imaginary Part
+plt.subplot(2, 1, 2)
+for j in range(N):
+    plt.plot(taxis, np.imag(Dseq[I[j], :]), linewidth=2, color=[0.8, 0.8, 0.8])
+plt.plot(taxis, np.imag(Dseq[I[0], :]), linewidth=2, color=[0.47, 0.67, 0.19])
+plt.plot(taxis, np.imag(Dseq[I[-1], :]), linewidth=2, color=[0.47, 0.67, 0.19])
+plt.xlabel('time', fontsize=14)
+plt.ylabel('Im($\lambda$)', fontsize=14)
+plt.tick_params(labelsize=12)
 
-# --- NUEVO: Creamos un eje temporal real y calculamos los tiempos de sombreado ---
-time_axis = np.arange(1, Nsteps + 1) * CalcEvery * dt
-start_learning_time = spacing0 * dt
-end_learning_time = (spacing0 + inLen) * dt
-
-plt.figure(figsize=(10, 6))
-
-# Dibujamos las trayectorias de los autovalores imaginarios
-plt.plot(time_axis, sorted_eigvals.imag)
-
-# Añadimos la región sombreada donde se inyecta el input (Learning)
-plt.axvspan(start_learning_time, end_learning_time, color='red', alpha=0.15, label='Fase de Aprendizaje')
-
-plt.title('Evolución de los autovalores imaginarios')
-plt.xlabel('Tiempo (s)')
-plt.ylabel('Parte Imaginaria')
-plt.legend()
-plt.grid(True, alpha=0.3)
 plt.tight_layout()
 plt.show()

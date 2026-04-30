@@ -7,6 +7,7 @@ from DataManagement import read_data
 from scipy.linalg import null_space
 import STDP
 import STDP_susman
+import STDP_Euler
 from numba import njit
 
 @njit(fastmath=True)
@@ -202,9 +203,8 @@ TAU = 50
 DT = 0.1
 DIM = 30
 # Pasos simulados y guardados
-SIMULATED_STEPS = 1_000_000
+SIMULATED_STEPS = 100_000
 # Pasos previos para el warmup
-START = 500_000
 CHUNK_STEPS = 100_000
 SKIP = 10
 SAVED_STEPS = SIMULATED_STEPS//SKIP
@@ -214,42 +214,35 @@ calc_eigenvalues = True
 W = np.random.normal(0, 1.0/np.sqrt(DIM), (DIM, DIM))
 X = np.random.normal(0, 1.0, DIM)
 
-INPUT_X_RANGE = [500_000, 600_000]
+INPUT_X_RANGE = [50_000, 60_000]
 X_in = INPUT_X_RANGE[0]
 X_out = INPUT_X_RANGE[1]
 rng_u = np.random.default_rng(42)
 rng_v = np.random.default_rng(69)
 
-u = rng_u.standard_normal(DIM)
-u = u/np.linalg.norm(u)
-
-v = rng_v.standard_normal(DIM)
-v = v/np.linalg.norm(v)
+u = np.sign(rng_u.standard_normal(DIM)) / np.sqrt(DIM)
+v = np.sign(rng_v.standard_normal(DIM)) / np.sqrt(DIM)
+input_u = np.zeros((SIMULATED_STEPS, DIM))
+input_v = np.zeros((SIMULATED_STEPS, DIM))
+input_u[X_in:X_out] = u
+input_v[X_in:X_out] = v
 
 # Tomamos los coeficientes de un prceso de Ornstein-Uhlenbeck
-tau_ou = 10.0  # tiempo de correlación en unidades de tiempo
+tau_ou = 100.0  # tiempo de correlación en unidades de tiempo
 dt = DT
-steps = X_out - X_in
-c_u = np.zeros(steps)
-c_v = np.zeros(steps)
-for i in range(1, steps):
-    c_u[i] = c_u[i-1] + (dt / tau_ou) * (-c_u[i-1]) + np.sqrt(2 * dt / tau_ou) * np.random.randn()
-    c_v[i] = c_v[i-1] + (dt / tau_ou) * (-c_v[i-1]) + np.sqrt(2 * dt / tau_ou) * np.random.randn()
 
-INPUT_X =  (c_u[:, None] * u[None, :] + c_v[:, None] * v[None, :]) * 5
+INPUT_X = np.zeros((SIMULATED_STEPS, DIM))
+for i in range(1, SIMULATED_STEPS):
+    INPUT_X[i] = INPUT_X[i-1] + (-INPUT_X[i-1]/tau_ou + np.random.randn()*input_u[i] + np.random.randn()*input_v[i]) * DT * 25
 
 #-------------------------------------------------------------------------
 
 #######################
-# WARMUP Y SIMULACIÓN #
+# SIMULACIÓN #
 #######################
 
-# Simulamos los primeros START pasos
-# print(f"Simulando los primeros {START} pasos")
-X, W, Y = STDP.StartSimulationSTDP(X, W, ALPHA, TAU, DIM, DT, START)
-
 # Simulamos la red con los parámetros dados
-STDP.Simulate_and_save_STDP(X, W, Y, INPUT_X, INPUT_X_RANGE, ALPHA, TAU, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, calc_eigenvalues)
+STDP_Euler.Simulate_and_save_STDP(X, W, INPUT_X, ALPHA, TAU, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, calc_eigenvalues)
 
 #-------------------------------------------------------------------------
 
