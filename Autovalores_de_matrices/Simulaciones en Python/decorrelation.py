@@ -112,7 +112,7 @@ def EvolveNetwork(x, W, y, xlp, input_vec, input1, input2, B, TotalSteps, CalcEv
             
         x_all[:, i] = x
         r = np.tanh(x)
-        xlp = ((-xlp + x / 1e-2) / taux) * dt
+        xlp = xlp + ((-xlp + x / 1e-2) / taux) * dt
         
         noise1 = np.random.randn() 
         noise2 = np.random.randn()

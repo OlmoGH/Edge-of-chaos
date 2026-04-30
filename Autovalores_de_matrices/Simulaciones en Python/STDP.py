@@ -36,6 +36,7 @@ def ChunkSimulationSTDP(X, W, Y, INPUT_X, INPUT_X_RANGE, ALPHA, TAU, DT, DIM, CH
     
     # Pre-alocamos los arrays temporales
     temp_X = np.empty_like(X)
+    temp_Y = np.empty_like(X)
     k1X = np.empty_like(X)
     k2X = np.empty_like(X)
     k3X = np.empty_like(X)
@@ -56,44 +57,49 @@ def ChunkSimulationSTDP(X, W, Y, INPUT_X, INPUT_X_RANGE, ALPHA, TAU, DT, DIM, CH
         # 1. Empleamos RK4 para la evolución de X y de Y
         # Calculamos k1X
         dot_inplace(W, X, k1X, DIM)
+
         # Calculamos k1Y
         for i in range(DIM):
-            k1X[i] -= X[i]
             k1Y[i] = (X[i] - Y[i])/TAU
         
         # Calculamos k2X
-        for i in range(DIM): temp_X[i] = X[i] + 0.5 * k1X[i] * DT
+        for i in range(DIM): 
+            temp_X[i] = X[i] + 0.5 * k1X[i] * DT
+            temp_Y[i] = Y[i] + 0.5 * k1Y[i] * DT
         dot_inplace(W, temp_X, k2X, DIM)
+
         # Calculamos k2Y
         for i in range(DIM):
-            # k2Y = (X - Y_1)/TAU
-            # Y_1 = Y + 0.5 * k1Y
-            k2X[i] -= temp_X[i]
-            k2Y[i] = (temp_X[i] - (Y[i] + 0.5 * k1Y[i] * DT))/TAU
+            k2Y[i] = (temp_X[i] - temp_Y[i])/TAU
 
         # Calculamos k3X
-        for i in range(DIM): temp_X[i] = X[i] + 0.5 * k2X[i] * DT
+        for i in range(DIM): 
+            temp_X[i] = X[i] + 0.5 * k2X[i] * DT
+            temp_Y[i] = Y[i] + 0.5 * k2Y[i] * DT
         dot_inplace(W, temp_X, k3X, DIM)
+
         # Calculamos k3Y
         for i in range(DIM):
-            k3X[i] -= temp_X[i]
-            k3Y[i] = (temp_X[i] - (Y[i] + 0.5 * k2Y[i] * DT))/TAU
+            k3Y[i] = (temp_X[i] - temp_Y[i])/TAU
 
 
         # Calculamos k4X
-        for i in range(DIM): temp_X[i] = X[i] + k3X[i] * DT
+        for i in range(DIM): 
+            temp_X[i] = X[i] + k3X[i] * DT
+            temp_Y[i] = Y[i] + k3Y[i] * DT
         dot_inplace(W, temp_X, k4X, DIM)
-        # Calculamos k4X
-        for i in range(DIM):
-            k4X[i] -= temp_X[i]
-            k4Y[i] = (temp_X[i] - (Y[i] + k3Y[i] * DT))/TAU
 
-        # 2. Actualizamos el término de xx^T
+        # Calculamos k4Y
+        for i in range(DIM):
+            k4Y[i] = (temp_X[i] - temp_Y[i])/TAU
+
+        # 2. Actualizamos el término de homeostásis, aprendizaje y ruido
         for i in range(DIM):
             for j in range(DIM):
                 homeostasis = -X[i] * X[j]
                 learning = X[i] * Y[j] - X[j] * Y[i]
-                W[i, j] += DT * ALPHA * (homeostasis + learning)
+                noise = np.random.randn() / np.sqrt(DIM)
+                W[i, j] += DT * ALPHA * (homeostasis + learning + noise)
         
         # Actualizamos la diagonal con la identidad
         for i in range(DIM):
@@ -119,6 +125,7 @@ def StartSimulationSTDP(X, W, ALPHA, TAU, DIM, DT, START):
     # Pre-alocamos los arrays temporales
     Y = np.zeros_like(X)
     temp_X = np.empty_like(X)
+    temp_Y = np.empty_like(X)
     k1X = np.empty_like(X)
     k2X = np.empty_like(X)
     k3X = np.empty_like(X)
@@ -136,44 +143,49 @@ def StartSimulationSTDP(X, W, ALPHA, TAU, DIM, DT, START):
         # 1. Empleamos RK4 para la evolución de X y de Y
         # Calculamos k1X
         dot_inplace(W, X, k1X, DIM)
+        
         # Calculamos k1Y
         for i in range(DIM):
-            k1X[i] -= X[i]
             k1Y[i] = (X[i] - Y[i])/TAU
         
         # Calculamos k2X
-        for i in range(DIM): temp_X[i] = X[i] + 0.5 * k1X[i] * DT
+        for i in range(DIM): 
+            temp_X[i] = X[i] + 0.5 * k1X[i] * DT
+            temp_Y[i] = Y[i] + 0.5 * k1Y[i] * DT
         dot_inplace(W, temp_X, k2X, DIM)
+
         # Calculamos k2Y
         for i in range(DIM):
-            # k2Y = (X - Y_1)/TAU
-            # Y_1 = Y + 0.5 * k1Y
-            k2X[i] -= temp_X[i]
-            k2Y[i] = (temp_X[i] - (Y[i] + 0.5 * k1Y[i] * DT))/TAU
+            k2Y[i] = (temp_X[i] - temp_Y[i])/TAU
 
         # Calculamos k3X
-        for i in range(DIM): temp_X[i] = X[i] + 0.5 * k2X[i] * DT
+        for i in range(DIM): 
+            temp_X[i] = X[i] + 0.5 * k2X[i] * DT
+            temp_Y[i] = Y[i] + 0.5 * k2Y[i] * DT
         dot_inplace(W, temp_X, k3X, DIM)
+
         # Calculamos k3Y
         for i in range(DIM):
-            k3X[i] -= temp_X[i]
-            k3Y[i] = (temp_X[i] - (Y[i] + 0.5 * k2Y[i] * DT))/TAU
+            k3Y[i] = (temp_X[i] - temp_Y[i])/TAU
 
 
         # Calculamos k4X
-        for i in range(DIM): temp_X[i] = X[i] + k3X[i] * DT
+        for i in range(DIM): 
+            temp_X[i] = X[i] + k3X[i] * DT
+            temp_Y[i] = Y[i] + k3Y[i] * DT
         dot_inplace(W, temp_X, k4X, DIM)
-        # Calculamos k4X
-        for i in range(DIM):
-            k4X[i] -= temp_X[i]
-            k4Y[i] = (temp_X[i] - (Y[i] + k3Y[i] * DT))/TAU
 
-        # 2. Actualizamos el término de xx^T
+        # Calculamos k4Y
+        for i in range(DIM):
+            k4Y[i] = (temp_X[i] - temp_Y[i])/TAU
+
+        # 2. Actualizamos el término de homeostásis, aprendizaje y ruido
         for i in range(DIM):
             for j in range(DIM):
                 homeostasis = -X[i] * X[j]
                 learning = X[i] * Y[j] - X[j] * Y[i]
-                W[i, j] += DT * ALPHA * (homeostasis + learning)
+                noise = np.random.randn() / np.sqrt(DIM)
+                W[i, j] += DT * ALPHA * (homeostasis + learning + noise)
         
         # Actualizamos la diagonal con la identidad
         for i in range(DIM):
@@ -181,8 +193,8 @@ def StartSimulationSTDP(X, W, ALPHA, TAU, DIM, DT, START):
 
         # 3. Actualizamos X e Y
         for i in range(DIM):
-            X[i] += DT * (k1X[i] + 2 * k2X[i] + 2 * k3X[i] + k4X[i]) / 6.0
-            Y[i] += DT * (k1Y[i] + 2 * k2Y[i] + 2 * k3Y[i] + k4Y[i]) / 6.0
+            X[i] += DT * (k1X[i] + 2 * k2X[i] + 2 * k3X[i] + k4X[i]) / 6.0           
+            Y[i] += DT * (k1Y[i] + 2 * k2Y[i] + 2 * k3Y[i] + k4Y[i]) / 6.0    
 
     return X, W, Y
 

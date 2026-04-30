@@ -197,16 +197,14 @@ def obtener_mejor_frecuencia(lista_señales, steps, skip, dt):
 ## PARÁMETROS DE LA SIMULACIÓN ##
 #################################
 
-ALPHA = 0.0001
-TAU = 20
-TAU_Y = 20
-TAU_X = 50
-DT = 0.01
+ALPHA = 0.001
+TAU = 50
+DT = 0.1
 DIM = 30
 # Pasos simulados y guardados
-SIMULATED_STEPS = 3_000_000
+SIMULATED_STEPS = 1_000_000
 # Pasos previos para el warmup
-START = 2_000_000
+START = 500_000
 CHUNK_STEPS = 100_000
 SKIP = 10
 SAVED_STEPS = SIMULATED_STEPS//SKIP
@@ -249,11 +247,9 @@ INPUT_X =  (c_u[:, None] * u[None, :] + c_v[:, None] * v[None, :]) * 5
 # Simulamos los primeros START pasos
 # print(f"Simulando los primeros {START} pasos")
 X, W, Y = STDP.StartSimulationSTDP(X, W, ALPHA, TAU, DIM, DT, START)
-# X, W, Y, X_lp = STDP_susman.StartSimulationSTDP(X, W, ALPHA, TAU_Y, TAU_X, DIM, DT, START)
 
 # Simulamos la red con los parámetros dados
 STDP.Simulate_and_save_STDP(X, W, Y, INPUT_X, INPUT_X_RANGE, ALPHA, TAU, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, calc_eigenvalues)
-# STDP_susman.Simulate_and_save_STDP(X, W, Y, X_lp, INPUT_X, INPUT_X_RANGE, ALPHA, TAU_Y, TAU_X, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, calc_eigenvalues)
 
 #-------------------------------------------------------------------------
 
@@ -281,7 +277,7 @@ w = np.random.standard_normal(DIM)
 w = w / np.linalg.norm(w)
 p_w = np.dot(X[:], w)
 
-fig, ax = plt.subplots(ncols=2)
+fig, ax = plt.subplots(ncols=2, figsize=(10, 5))
 ax[0].plot(imag_eigvals)
 ax[1].plot(real_eigvals)
 plt.show()
