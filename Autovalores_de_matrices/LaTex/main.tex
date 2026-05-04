@@ -19,7 +19,31 @@
 
 % Referencias (hyperref siempre debe ser de los últimos)
 \usepackage{hyperref}
-\usepackage{cleveref}      % colors
+\usepackage{cleveref}      
+
+% colors
+\usepackage{xcolor}
+
+% Insertar código
+\usepackage{listings}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color{gray},
+    stringstyle=\color{red},
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    stepnumber=1,
+    numbersep=5pt,
+    backgroundcolor=\color{white},
+    showspaces=false,
+    showstringspaces=false,
+    tabsize=2,
+    captionpos=b
+}
 
 \begin{document}
 
@@ -74,6 +98,40 @@ Como $X$ es una combinación lineal de los autovectores de $W$ este proceso se l
   \caption{Representación de la correlación entre caidas de autovalores y picos de actividad para $N=7$, $\alpha=0.0001$. \textbf{Izda.:} Evolución de dos de los autovalores de la matriz de conexiones, resaltando las caidas de $Re(\lambda)$ para cada uno de ellos. \textbf{Dcha.:} Actividad de la red calculada como $|X|^2$, donde se observa cómo los picos corresponden con las caidas en el espacio de autovalores. Los picos sin resaltar corresponden con otros autovalores que no se muestran en la gráfica.}
   \label{picos de actividad}
 \end{figure}
+
+\section{Discrepancias entre códigos}
+\subsection{Error tipográfico}
+En el código proporcionado por \cite{susman2019} aparece un error en el cálculo del $x$ promediado por un filtro pasa-baja en el que no se actualiza correctamente el valor de \lstinline|xlp|, sin embargo al corregirlo no varía de forma sustancial el resultado.
+
+\lstinputlisting[language=Matlab, firstline=59, lastline=62]{/home/olmoviviens/Escritorio/stable-memory-master/decorrelation_learning.m}
+
+\subsection{Linealidad}
+El trabajo de Susman et al. \cite{susman2019} emplea un modelo no lineal para la evolución tanto de las conexiones entre neuronas como para la tasa de disparo, empleando la función $\tanh(x)$ para suavidar el input. Además en la homeostásis anti-hebbiana se añade un término $\tilde{x}$ por alguna razón.
+\begin{eqnarray*}
+  &\dot{x} = -x + W\tanh(x) + b(t)\\
+  &\dot{W} = \underbrace{B - \tanh(x-\tilde{x})\tanh(x)^T}_{\text{Decorrelación}} + \underbrace{\tanh(x)y^T - y\tanh(x)^T}_{\text{STDP}} + \xi(t)\\
+  &\tau_y\dot{y} = -y + \tanh(x)\\
+  &\tau_x\dot{\tilde{x}} = -\tilde{x} + x
+\end{eqnarray*}
+
+Mi modelo es completamente lineal y no se le añade ningún término a la homeostásis, por lo que esta es puramente simétrica como se aplica en \cite{magnasco2009}.
+\begin{eqnarray*}
+  &\dot{x} = Wx + b(t)\\
+  &\dot{W} = \underbrace{I - xx^T}_{\text{Anti-hebbiano}} + \underbrace{xy^T - yx^T}_{\text{STDP}} + \xi(t)\\
+  &\tau_y\dot{y} = -y + x
+\end{eqnarray*}
+
+La figura \ref{}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.45\linewidth]{linearized_seed.png}
+  \includegraphics[width=0.45\linewidth]{nonlinear_seed.png}
+  \caption{Evolución temporal de la parte real (arriba) e imaginaria (abajo) de los autovalores de $W$. Se observa como el resultado de la ecuación con la no linealidad $\tanh(x)$ (\textbf{Dcha.}) y la linearizada (\textbf{Izda.}) no cambia de forma significativa y es cualitativamente idéntica.}
+  \label{comparacion lineal-no lineal}
+\end{figure}
+
+\subsection{Inconsistencia con la semilla}
 
 \bibliographystyle{unsrt}
 \bibliography{bibliografia}
