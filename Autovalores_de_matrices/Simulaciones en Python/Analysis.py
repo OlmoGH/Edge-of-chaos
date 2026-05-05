@@ -201,9 +201,9 @@ def obtener_mejor_frecuencia(lista_señales, steps, skip, dt):
 ALPHA = 0.001
 TAU = 50
 DT = 0.1
-DIM = 30
+DIM = 128
 # Pasos simulados y guardados
-SIMULATED_STEPS = 100_000
+SIMULATED_STEPS = 200_000
 # Pasos previos para el warmup
 CHUNK_STEPS = 100_000
 SKIP = 10
@@ -214,7 +214,7 @@ calc_eigenvalues = True
 W = np.random.normal(0, 1.0/np.sqrt(DIM), (DIM, DIM))
 X = np.random.normal(0, 1.0, DIM)
 
-INPUT_X_RANGE = [50_000, 60_000]
+INPUT_X_RANGE = [150_000, 160_000]
 X_in = INPUT_X_RANGE[0]
 X_out = INPUT_X_RANGE[1]
 rng_u = np.random.default_rng(42)
@@ -228,13 +228,14 @@ input_u[X_in:X_out] = u
 input_v[X_in:X_out] = v
 
 # Tomamos los coeficientes de un prceso de Ornstein-Uhlenbeck
-tau_ou = 100.0  # tiempo de correlación en unidades de tiempo
+tau_ou = 20.0  # tiempo de correlación en unidades de tiempo
 dt = DT
 
 INPUT_X = np.zeros((SIMULATED_STEPS, DIM))
 for i in range(1, SIMULATED_STEPS):
     INPUT_X[i] = INPUT_X[i-1] + (-INPUT_X[i-1]/tau_ou + np.random.randn()*input_u[i] + np.random.randn()*input_v[i]) * DT * 25
-
+plt.plot(INPUT_X)
+plt.show()
 #-------------------------------------------------------------------------
 
 #######################
@@ -261,6 +262,8 @@ print("Datos leidos")
 #############################
 
 energy = np.linalg.norm(X[:], axis=1)
+plt.plot(energy)
+plt.show()
 p_u = np.dot(X[:], u)
 p_v = np.dot(X[:], v)
 

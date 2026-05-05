@@ -99,11 +99,17 @@ Como $X$ es una combinación lineal de los autovectores de $W$ este proceso se l
   \label{picos de actividad}
 \end{figure}
 
-\section{Discrepancias entre códigos}
+\section{Reunión 5/05/2026}
 \subsection{Error tipográfico}
 En el código proporcionado por \cite{susman2019} aparece un error en el cálculo del $x$ promediado por un filtro pasa-baja en el que no se actualiza correctamente el valor de \lstinline|xlp|, sin embargo al corregirlo no varía de forma sustancial el resultado.
 
-\lstinputlisting[language=Matlab, firstline=59, lastline=62]{/home/olmoviviens/Escritorio/stable-memory-master/decorrelation_learning.m}
+\begin{lstlisting}[language=Matlab]
+  x_all (: , i ) = x ;
+  r = tanh ( x ) ;
+  xlp = xlp + (( - xlp + x /1 e -2) / taux ) * dt ;
+  input = input + ( - zeta * input + randn * input1 (: , i ) +
+  randn * input2 (: , i ) ) * dt ;
+\end{lstlisting}
 
 \subsection{Linealidad}
 El trabajo de Susman et al. \cite{susman2019} emplea un modelo no lineal para la evolución tanto de las conexiones entre neuronas como para la tasa de disparo, empleando la función $\tanh(x)$ para suavidar el input. Además en la homeostásis anti-hebbiana se añade un término $\tilde{x}$ por alguna razón.
@@ -121,7 +127,7 @@ Mi modelo es completamente lineal y no se le añade ningún término a la homeos
   &\tau_y\dot{y} = -y + x
 \end{eqnarray*}
 
-La figura \ref{}
+La figura \ref{comparacion lineal-no lineal} muestra una comparación entre los resultados obtenidos mediante el modelo de \cite{susman2019} (\textbf{Dcha}) y el mío (\textbf{Izda}) donde se observa cómo no es necesara la no linealidad para mostrar la generación de memorias uardadas como un par de autovalores complejos conjugados. Ambas simulaciones se han llevado a cabo en Matlab usando el script de github de \cite{susman2019} cambiando los parámetros para añadir la linealidad.
 
 \begin{figure}[H]
   \centering
@@ -132,6 +138,16 @@ La figura \ref{}
 \end{figure}
 
 \subsection{Inconsistencia con la semilla}
+Sin embargo al no ser capaz de replicar los resultados en python en mi propio código e intentar traducir el código de matlab directamente a python me di cuenta de que si simplemente cambiaba la semilla del generador de números aleatorios el resultado cambiaba drásticamente
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=0.45\linewidth]{nonlinear_12.png}
+  \includegraphics[width=0.45\linewidth]{nonlinear_123.png}
+  \includegraphics[width=0.45\linewidth]{nonlinear_234.png}
+  \includegraphics[width=0.45\linewidth]{nonlinear_537.png}
+  \caption{Diferentes simulaciones para el modelo no lineal en Matlab empleando diferentes semillaspara el generador denúmeros aleatorios: 12, 123, 234 y 537 de izquierda a derecha y de arriba a abajo.}
+\end{figure}
 
 \bibliographystyle{unsrt}
 \bibliography{bibliografia}
