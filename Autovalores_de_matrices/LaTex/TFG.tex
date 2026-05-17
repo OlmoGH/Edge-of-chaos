@@ -16,12 +16,36 @@
 \usepackage{booktabs}
 \usepackage{float}
 \usepackage[font=small, labelfont=bf]{caption}
+\usepackage{subfigure} 
 
 % Referencias (hyperref siempre debe ser de los últimos)
 \usepackage{hyperref}
 \usepackage{cleveref}      % colors
 
+% Formato de la página, encabezado y pie de página
+\usepackage{fancyhdr}
+\setlength{\headheight}{16pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\nouppercase{\leftmark}}
+\fancyfoot[R]{\thepage}
+
+\author{Olmo Viviens Blázquez}
+\title{Emergencia de la Criticidad en Redes Neuronales Mediante el Aprendizaje}
+\date{\today}
+
+% Inicio del documento
 \begin{document}
+
+% Portada
+\maketitle
+
+\newpage
+
+% Índice o tabla de contenidos
+\tableofcontents
+
+\newpage
 
 \section{Introducción}
 \begin{enumerate}
@@ -32,8 +56,12 @@
 
 \section{Resultados}
 \subsection{Aprendizaje antihebbiano}
+\cite{magnasco2009}
 
 \subsection{Almacenamiento de recuerdos imaginarios}
+\cite{susman2019}
+
+\newpage
 
 \bibliographystyle{unsrt}
 \bibliography{bibliografia}

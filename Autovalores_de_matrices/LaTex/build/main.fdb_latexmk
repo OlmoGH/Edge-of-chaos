@@ -1,18 +1,18 @@
 # Fdb version 4
-["bibtex build/main"] 1777971348.79786 "build/main.aux" "build/main.bbl" "build/main" 1777971352.34065 0
-  "./bibliografia.bib" 1776935174.11919 18254 e1ce95a55b33d24384659f796b69c6bb ""
+["bibtex build/main"] 1777971348.79786 "build/main.aux" "build/main.bbl" "build/main" 1778586305.47949 0
+  "./bibliografia.bib" 1778061015.92879 18254 e1ce95a55b33d24384659f796b69c6bb ""
   "/usr/share/texlive/texmf-dist/bibtex/bst/base/unsrt.bst" 1775001600 18030 1376b4b231b50c66211e47e42eda2875 ""
-  "build/main.aux" 1777971351.54238 6783 c07d7150c14598811ff812ae5f6c7c5e "pdflatex"
+  "build/main.aux" 1778586304.44412 6783 c07d7150c14598811ff812ae5f6c7c5e "pdflatex"
   (generated)
   "build/main.bbl"
   "build/main.blg"
   (rewritten before read)
-["pdflatex"] 1777971349.18138 "/home/olmoviviens/Escritorio/Uni/Edge-of-chaos/Autovalores_de_matrices/LaTex/main.tex" "build/main.pdf" "main" 1777971352.34154 0
+["pdflatex"] 1778586301.29068 "/home/olmoviviens/Escritorio/Uni/Edge-of-chaos/Autovalores_de_matrices/LaTex/main.tex" "build/main.pdf" "main" 1778586305.4803 0
   "../Animaciones y figuras/Evolucion autovalores.png" 1774735949.136 63745 a09ef466aabe13793ab7f96233af8b31 ""
   "../Simulaciones en Python/Picos.png" 1774735949.9061 57282 d07808ef6215ccb791ee260d66f5ae8f ""
   "../Simulaciones en Python/cov_eig.png" 1774735949.9079 21384 b300ba66f3ff59c9090b99c67f50cadc ""
   "/home/olmoviviens/.texlive2023/texmf-var/web2c/pdftex/pdflatex.fmt" 1776164896 7753792 a4f6ad9ac9ca1906cc1a94f27c25980b ""
-  "/home/olmoviviens/Escritorio/Uni/Edge-of-chaos/Autovalores_de_matrices/LaTex/main.tex" 1777971346.48838 9152 575655592b30e60dd7452f3d71773143 ""
+  "/home/olmoviviens/Escritorio/Uni/Edge-of-chaos/Autovalores_de_matrices/LaTex/main.tex" 1778586300.51312 9200 1d3a4ec0ee32c41ff480e5810b478f16 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy6.tfm" 1246382020 1124 14ccf5552bc7f77ca02a8a402bea8bfb ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy7.tfm" 1246382020 1120 7f9f170e8aa57527ad6c49feafd45d54 ""
@@ -140,16 +140,16 @@
   "/usr/share/texlive/texmf-dist/tex/latex/xcolor/xcolor.sty" 1655066402 56148 51a9a8571c07b9921892ae11063ae853 ""
   "/usr/share/texlive/texmf-dist/web2c/texmf.cnf" 1775001600 40900 887e0dc8cac988a9e9c574af364cf837 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1776166244.87001 4602615 ac1019cb4c4ba39710c2cf7f752b378d ""
-  "build/main.aux" 1777971351.54238 6783 c07d7150c14598811ff812ae5f6c7c5e "pdflatex"
+  "Figures/linearized_seed.png" 1777904008.20132 37732 ba3ffeaf7d27008ec27e4402550ced4f ""
+  "Figures/nonlinear_12.png" 1777971343.05967 74046 0ccc91eecb2aecac43c05fde44ae97a8 ""
+  "Figures/nonlinear_123.png" 1777971343.06149 53669 ab537c96d3eda8491ec23eeffad2a9a1 ""
+  "Figures/nonlinear_234.png" 1777971343.06414 91462 9bb6e460ccd53a8b5366c3d392bb858c ""
+  "Figures/nonlinear_537.png" 1777971343.06749 97608 77178dbe4ef693e96c5e786340740117 ""
+  "Figures/nonlinear_seed.png" 1777903832.78468 34468 a182ad8760520153c82962c3707a20ab ""
+  "build/main.aux" 1778586304.44412 6783 c07d7150c14598811ff812ae5f6c7c5e "pdflatex"
   "build/main.bbl" 1777971349.15939 351 6d8495c8fbdb93baca384348a56b6812 "bibtex build/main"
-  "build/main.out" 1777971351.54838 1435 a1ea2aad7aa5d6023d12f648f71f25f3 "pdflatex"
-  "linearized_seed.png" 1777904008.20132 37732 ba3ffeaf7d27008ec27e4402550ced4f ""
-  "main.tex" 1777971346.48838 9152 575655592b30e60dd7452f3d71773143 ""
-  "nonlinear_12.png" 1777971343.05967 74046 0ccc91eecb2aecac43c05fde44ae97a8 ""
-  "nonlinear_123.png" 1777971343.06149 53669 ab537c96d3eda8491ec23eeffad2a9a1 ""
-  "nonlinear_234.png" 1777971343.06414 91462 9bb6e460ccd53a8b5366c3d392bb858c ""
-  "nonlinear_537.png" 1777971343.06749 97608 77178dbe4ef693e96c5e786340740117 ""
-  "nonlinear_seed.png" 1777903832.78468 34468 a182ad8760520153c82962c3707a20ab ""
+  "build/main.out" 1778586304.45112 1435 a1ea2aad7aa5d6023d12f648f71f25f3 "pdflatex"
+  "main.tex" 1778586300.51312 9200 1d3a4ec0ee32c41ff480e5810b478f16 ""
   (generated)
   "build/main.aux"
   "build/main.log"

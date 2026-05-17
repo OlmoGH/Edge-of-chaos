@@ -1,3 +1,13 @@
-\begin{thebibliography}{}
+\begin{thebibliography}{1}
+
+\bibitem{magnasco2009}
+Marcelo~O. Magnasco, Oreste Piro, and Guillermo~A. Cecchi.
+\newblock Self-{{Tuned Critical Anti-Hebbian Networks}}.
+\newblock 102(25):258102.
+
+\bibitem{susman2019}
+Lee Susman, Naama Brenner, and Omri Barak.
+\newblock Stable memory with unstable synapses.
+\newblock 10(1):4441.
 
 \end{thebibliography}

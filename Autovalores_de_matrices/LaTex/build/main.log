@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2026.4.14)  5 MAY 2026 10:55
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023) (preloaded format=pdflatex 2026.4.14)  12 MAY 2026 13:45
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -488,38 +488,38 @@ File: lstlang1.sty 2023/02/27 1.9 listings language file
 LaTeX Font Info:    Font shape `OT1/cmtt/bx/n' in size <10.95> not available
 (Font)              Font shape `OT1/cmtt/m/n' tried instead on input line 108.
  [3 <../Simulaciones en Python/Picos.png>]
-<linearized_seed.png, id=94, 508.299pt x 323.7696pt>
-File: linearized_seed.png Graphic file (type png)
-<use linearized_seed.png>
-Package pdftex.def Info: linearized_seed.png  used on input line 134.
+<Figures/linearized_seed.png, id=94, 508.299pt x 323.7696pt>
+File: Figures/linearized_seed.png Graphic file (type png)
+<use Figures/linearized_seed.png>
+Package pdftex.def Info: Figures/linearized_seed.png  used on input line 134.
 (pdftex.def)             Requested size: 175.49881pt x 111.7846pt.
-<nonlinear_seed.png, id=95, 508.299pt x 323.7696pt>
-File: nonlinear_seed.png Graphic file (type png)
-<use nonlinear_seed.png>
-Package pdftex.def Info: nonlinear_seed.png  used on input line 135.
+<Figures/nonlinear_seed.png, id=95, 508.299pt x 323.7696pt>
+File: Figures/nonlinear_seed.png Graphic file (type png)
+<use Figures/nonlinear_seed.png>
+Package pdftex.def Info: Figures/nonlinear_seed.png  used on input line 135.
 (pdftex.def)             Requested size: 175.49881pt x 111.7846pt.
  [4]
-<nonlinear_12.png, id=106, 689.9376pt x 435.5472pt>
-File: nonlinear_12.png Graphic file (type png)
-<use nonlinear_12.png>
-Package pdftex.def Info: nonlinear_12.png  used on input line 145.
+<Figures/nonlinear_12.png, id=106, 689.9376pt x 435.5472pt>
+File: Figures/nonlinear_12.png Graphic file (type png)
+<use Figures/nonlinear_12.png>
+Package pdftex.def Info: Figures/nonlinear_12.png  used on input line 145.
 (pdftex.def)             Requested size: 175.49881pt x 110.78725pt.
-<nonlinear_123.png, id=107, 689.9376pt x 439.8834pt>
-File: nonlinear_123.png Graphic file (type png)
-<use nonlinear_123.png>
-Package pdftex.def Info: nonlinear_123.png  used on input line 146.
+<Figures/nonlinear_123.png, id=107, 689.9376pt x 439.8834pt>
+File: Figures/nonlinear_123.png Graphic file (type png)
+<use Figures/nonlinear_123.png>
+Package pdftex.def Info: Figures/nonlinear_123.png  used on input line 146.
 (pdftex.def)             Requested size: 175.49881pt x 111.89023pt.
-<nonlinear_234.png, id=108, 689.9376pt x 439.8834pt>
-File: nonlinear_234.png Graphic file (type png)
-<use nonlinear_234.png>
-Package pdftex.def Info: nonlinear_234.png  used on input line 147.
+<Figures/nonlinear_234.png, id=108, 689.9376pt x 439.8834pt>
+File: Figures/nonlinear_234.png Graphic file (type png)
+<use Figures/nonlinear_234.png>
+Package pdftex.def Info: Figures/nonlinear_234.png  used on input line 147.
 (pdftex.def)             Requested size: 175.49881pt x 111.89023pt.
-<nonlinear_537.png, id=109, 689.9376pt x 439.8834pt>
-File: nonlinear_537.png Graphic file (type png)
-<use nonlinear_537.png>
-Package pdftex.def Info: nonlinear_537.png  used on input line 148.
+<Figures/nonlinear_537.png, id=109, 689.9376pt x 439.8834pt>
+File: Figures/nonlinear_537.png Graphic file (type png)
+<use Figures/nonlinear_537.png>
+Package pdftex.def Info: Figures/nonlinear_537.png  used on input line 148.
 (pdftex.def)             Requested size: 175.49881pt x 111.89023pt.
- (build/main.bbl [5 <./linearized_seed.png (PNG copy)> <./nonlinear_seed.png (PNG copy)> <./nonlinear_12.png (PNG copy)> <./nonlinear_123.png (PNG copy)> <./nonlinear_234.png (PNG copy)> <./nonlinear_537.png (PNG copy)>]) [6] (build/main.aux
+ (build/main.bbl [5 <./Figures/linearized_seed.png (PNG copy)> <./Figures/nonlinear_seed.png (PNG copy)> <./Figures/nonlinear_12.png (PNG copy)> <./Figures/nonlinear_123.png (PNG copy)> <./Figures/nonlinear_234.png (PNG copy)> <./Figures/nonlinear_537.png (PNG copy)>]) [6] (build/main.aux
 LaTeX Info: Redefining \. on input line 24.
 LaTeX Info: Redefining \% on input line 24.
 )
@@ -527,8 +527,8 @@ Package rerunfilecheck Info: File `main.out' has not changed.
 (rerunfilecheck)             Checksum: A1EA2AAD7AA5D6023D12F648F71F25F3;1435.
  ) 
 Here is how much of TeX's memory you used:
- 18163 strings out of 476041
- 293953 string characters out of 5793174
+ 18164 strings out of 476041
+ 294249 string characters out of 5793174
  1928388 words of memory out of 6000000
  38353 multiletter control sequences out of 15000+600000
  528473 words of font info for 92 fonts, out of 8000000 for 9000
