@@ -10,6 +10,7 @@
 \usepackage{bm}
 \usepackage{physics}
 \usepackage{cancel}
+\usepackage{bbold}
 
 % Gráficos y Tablas
 \usepackage{graphicx}
@@ -54,6 +55,39 @@
   \item Criticidad autoorganizada
 \end{enumerate}
 
+\section{Fundamento teórico}
+\subsection{Modelo anti-hebbiano}
+Se va a emplear un modelo lineal de red neuronal en aras de simplificar el proceso de análisis y la interpretación de resultados, a pesar de la diferencia de la representación empleada con la realidad biológica. De este modo la actividad de la neurona $i$ perteneciente a un sistema de $N$ neuronas conectadas entre sí evoluciona según la ecuación \eqref{eq:evolución actividad}
+\begin{equation}
+  \dot{x}_i = \sum_{j=1}^N w_{ij}x_j
+  \label{eq:evolución actividad}
+\end{equation}
+donde $w_{ij}$ son los elementos de la matriz de conexiones $W$. Esta ecuación puede ser escrita en forma matricial como 
+
+\begin{equation}
+  \dot{x} = Wx
+\end{equation}
+
+Las conexiones entre neuronas evolucionan en el tiempo según la ecuación \eqref{eq:evolución conexiones}
+
+\begin{equation}
+  \dot{w}_{ij} = \alpha(\delta_{ij} - x_i x_j)
+  \label{eq:evolución conexiones}
+\end{equation}
+que en forma matricial se expresa como 
+
+\begin{equation}
+  \dot{W} = \alpha\left(\mathbb{1}_N - xx^T\right)
+\end{equation}
+donde $\alpha$ es el parámetro de aprendizaje $\ll 1$ por lo general.
+
+\subsection{Aprendizaje antisimétrico}
+
+\begin{equation}
+  \Delta_l = xy^T - yx^T
+\end{equation}
+
+\subsection{Estabilidad al borde del caos}
 \section{Resultados}
 \subsection{Aprendizaje antihebbiano}
 \cite{magnasco2009}
