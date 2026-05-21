@@ -799,6 +799,14 @@ INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmbsy10.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy8.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy6.tfm
 OUTPUT build/TFG.toc
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmti12.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmex7.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msam5.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm5.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmbx5.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmmib5.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy5.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/cm/cmti10.tfm
 INPUT /usr/share/texlive/texmf-dist/tex/latex/bbold/Ubbold.fd
 INPUT /usr/share/texlive/texmf-dist/tex/latex/bbold/Ubbold.fd
 INPUT /usr/share/texlive/texmf-dist/tex/latex/bbold/Ubbold.fd
@@ -806,6 +814,14 @@ INPUT /usr/share/texlive/texmf-dist/tex/latex/bbold/Ubbold.fd
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/bbold/bbold12.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/bbold/bbold8.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/bbold/bbold6.tfm
+INPUT ./Figures/Evolucion autovalores.png
+INPUT ./Figures/Evolucion autovalores.png
+INPUT Figures/Evolucion autovalores.png
+INPUT ./Figures/Evolucion autovalores.png
+INPUT ./Figures/Evolucion autovalores.png
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/bbold/bbold10.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/bbold/bbold7.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/bbold/bbold5.tfm
 INPUT build/TFG.bbl
 INPUT build/TFG.bbl
 INPUT build/TFG.bbl
@@ -814,11 +830,19 @@ INPUT build/TFG.aux
 INPUT build/TFG.out
 INPUT build/TFG.out
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/bbold-type1/bbold10.pfb
+INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmex10.pfb
+INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi12.pfb
+INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi8.pfb
+INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr17.pfb
+INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb
 INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb
+INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb
+INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb
+INPUT /usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti12.pfb

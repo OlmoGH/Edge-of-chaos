@@ -1,5 +1,15 @@
 \begin{thebibliography}{1}
 
+\bibitem{bendixson1902}
+Ivar Bendixson.
+\newblock Sur les racines d'une Équation fondamentale.
+\newblock 25(0):359--365.
+
+\bibitem{hopfield1982}
+J~J Hopfield.
+\newblock Neural networks and physical systems with emergent collective computational abilities.
+\newblock 79(8):2554--2558.
+
 \bibitem{magnasco2009}
 Marcelo~O. Magnasco, Oreste Piro, and Guillermo~A. Cecchi.
 \newblock Self-{{Tuned Critical Anti-Hebbian Networks}}.
