@@ -814,14 +814,14 @@ INPUT /usr/share/texlive/texmf-dist/tex/latex/bbold/Ubbold.fd
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/bbold/bbold12.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/bbold/bbold8.tfm
 INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/bbold/bbold6.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/bbold/bbold10.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/bbold/bbold7.tfm
+INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/bbold/bbold5.tfm
 INPUT ./Figures/Evolucion autovalores.png
 INPUT ./Figures/Evolucion autovalores.png
 INPUT Figures/Evolucion autovalores.png
 INPUT ./Figures/Evolucion autovalores.png
 INPUT ./Figures/Evolucion autovalores.png
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/bbold/bbold10.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/bbold/bbold7.tfm
-INPUT /usr/share/texlive/texmf-dist/fonts/tfm/public/bbold/bbold5.tfm
 INPUT build/TFG.bbl
 INPUT build/TFG.bbl
 INPUT build/TFG.bbl

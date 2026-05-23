@@ -109,14 +109,16 @@ que en forma matricial se expresa como
 
 \begin{equation}
   \Delta_H = \alpha\left(\mathbb{1}_N - xx^T\right)
+  \label{eq:antihebbian rule}
 \end{equation}
-donde \(\alpha\) es el parámetro de aprendizaje \(\ll 1\) por lo general.
+donde \(\alpha\) es el parámetro de aprendizaje \(\ll 1\) por lo general \footnote{Se añade la identidad en la ecuación \eqref{eq:antihebbian rule} para que una vez que \(x \ll 1\) debido a la retroalimentación negativa \(W\) no siga disminuyendo hasta apagar el sistema y que se restaure la actividad poco a poco}.
 
 \subsection{Aprendizaje antisimétrico}
-El término \(\Delta_L\) se encarga de codificar la información 
-\begin{equation}
-  \Delta_L = xy^T - yx^T
-\end{equation}
+El término \(\Delta_L\) se encarga de codificar la información entrante mediante el estímulo \(b(t)\) y almacenarla en la matriz de conexiones de forma \emph{permanente}, para ello se hace uso de la parte antisimétrica de \(W\) que queda inalterada mediante la homeostásis para producir un patrón en las conexiones similar al que se genera mediante el aprendizaje tipo STDP (\emph{spike time dependent plasticity}) \cite{susman2019}
+\begin{align}
+  \Delta_L &= \eta \left(xy^T - yx^T\right)\\
+  \tau \dot{y} &= y - x
+\end{align}
 
 \section{Resultados}
 \subsection{Aprendizaje antihebbiano}

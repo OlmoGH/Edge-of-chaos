@@ -1,89 +1,79 @@
 import numpy as np
 from numba import njit
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 
-@njit(fastmath=True)
+
 def simulate(STEPS, W, X_0, DT):
     DIM = X_0.shape[0]
-    X = np.zeros((STEPS, DIM))
-    X[0] = X_0
-    temp_X = np.empty_like(X_0)
-    phi = np.empty_like(X_0)
-    k1 = np.empty_like(X_0)
-    k2 = np.empty_like(X_0)
-    k3 = np.empty_like(X_0)
-    k4 = np.empty_like(X_0)
-
-    # Integramos todos los pasos temporales
-    for step in range(1, STEPS):
-
-        # Calculamos k1
+    X_time_series = np.zeros((STEPS, DIM))
+    X_time_series[0] = X_0
+    for t in range(1, STEPS):
+        if t % 1000 == 0:
+            print(f"Paso {t}/{STEPS}")
         for i in range(DIM):
-            k1[i] = -X[step-1, i]
+            sum = 0
             for j in range(DIM):
-                k1[i] += W[i, j] * np.tanh(X[step-1, j])
+                sum += W[i, j] * X_time_series[t-1, j]
 
-        # Calculamos k2
-        for i in range(DIM):
-            temp_X[i] = X[step-1, i] + 0.5 * k1[i] * DT
-        for i in range(DIM):
-            k2[i] = -temp_X[i]
-            for j in range(DIM):
-                k2[i] += W[i, j] * np.tanh(temp_X[j])
-
-        # Calculamos k3
-        for i in range(DIM):
-            temp_X[i] = X[step-1, i] + 0.5 * k2[i] * DT
-        for i in range(DIM):
-            k3[i] = -temp_X[i]
-            for j in range(DIM):
-                k3[i] += W[i, j] * np.tanh(temp_X[j])
-
-        # Calculamos k4
-        for i in range(DIM):
-            temp_X[i] = X[step-1, i] + k3[i] * DT
-        for i in range(DIM):
-            k4[i] = -temp_X[i]
-            for j in range(DIM):
-                k4[i] += W[i, j] * np.tanh(temp_X[j])
-
-        # Integramos con todos los asos intermedios
-        for i in range(DIM):
-            X[step, i] = X[step-1, i] + DT * (k1[i] + 2.0 * k2[i] + 2.0 * k3[i] + k4[i]) / 6.0
-        
+            X_time_series[t, i] = X_time_series[t-1, i] + DT * sum
     
-    return X
+    return X_time_series
 
-DIM = 1000
-STEPS = 10000
+@njit(fastmath=True)
+def hopfield(STEPS, W, X_0, DT):
+    DIM = X_0.shape[0]
+    X_time_series = np.zeros((STEPS, DIM))
+    X_time_series[0] = X_0
+    for t in range(1, STEPS):
+        if t % 10 == 0:
+            print(f"Paso {t}/{STEPS}")
+        for i in range(DIM):
+            sum = 0
+            for j in range(DIM):
+                sum += W[i, j] * X_time_series[t-1, j]
+
+            X_time_series[t, i] = np.tanh(sum)
+    
+    return X_time_series
+DIM = 400
+STEPS = 100
 DT = 0.01
-X = np.random.standard_normal(DIM)
-rng_u = np.random.default_rng(42)
-u = rng_u.standard_normal(DIM)
-u = u / np.linalg.norm(u)
+X_0 = np.random.standard_normal(DIM)
 
-rng_v = np.random.default_rng(69)
-v = rng_v.standard_normal(DIM)
-v = v - np.dot(u, v) * u
-v = v / np.linalg.norm(v)
+# u = np.ones(DIM)
+# u[::2] = -1
 
-W = np.outer(u, v) - np.outer(v, u) + (np.outer(u, u) + np.outer(v, v)) * 4
+# u = u / np.linalg.norm(u)
 
-time_series = simulate(STEPS, W, X, DT)
+# v = np.ones(DIM) / np.sqrt(DIM)
 
-p_u = np.dot(time_series, u)
-p_v = np.dot(time_series, v)
+u = np.loadtxt("Autovalores_de_matrices/Simulaciones en Python/Cara.txt", delimiter=',')
+u = np.astype(u*2 - 1, int)
+print(u.shape)
 
-r1 = np.random.standard_normal(DIM)
-r1 = r1 / np.linalg.norm(r1)
+v = np.loadtxt("Autovalores_de_matrices/Simulaciones en Python/Fresa.txt", delimiter=',')
+v = np.astype(v*2 - 1, int)
 
-r2 = np.random.standard_normal(DIM)
-r2 = r2 - np.dot(r1, r2) * r1
-r2 = r2 / np.linalg.norm(r2)
+W = np.outer(u, v) - np.outer(v, u)
 
-p_r1 = np.dot(time_series, r1)
-p_r2 = np.dot(time_series, r2)
+eigenvalues = np.linalg.eigvals(W)
 
-plt.plot(np.sqrt(p_u**2 + p_v**2))
-plt.plot(np.sqrt(p_r1**2 + p_r2**2))
+time_series = hopfield(STEPS, W, X_0, DT)
+
+plt.plot(time_series[:, 0])
+plt.show()
+
+L = int(np.sqrt(DIM))
+np.empty((L, L))
+
+fig, ax = plt.subplots()
+img = ax.imshow(np.empty((L, L)), aspect='auto', cmap='gray')
+def update(frame):
+    bin_image = time_series[frame].reshape((L, L))
+    img.set_data(bin_image)
+
+    return img,
+
+animation = FuncAnimation(fig, func=update, frames=STEPS, interval=500, blit=True)
 plt.show()
