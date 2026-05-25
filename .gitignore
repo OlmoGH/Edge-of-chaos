@@ -5,3 +5,14 @@
 *.h5
 # Ignore VSCode configurations
 *.vscode/
+# Ignore LaTex temporary files
+*.aux
+*.log
+*.toc
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.blg
+*.bbl
+*.out
+*.pdf
