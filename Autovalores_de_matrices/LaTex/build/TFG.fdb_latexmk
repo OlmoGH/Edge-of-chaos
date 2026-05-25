@@ -1,15 +1,15 @@
 # Fdb version 4
-["bibtex build/TFG"] 1779379007.71853 "build/TFG.aux" "build/TFG.bbl" "build/TFG" 1779379010.64077 0
+["bibtex build/TFG"] 1779701477.37175 "build/TFG.aux" "build/TFG.bbl" "build/TFG" 1779732503.4982 0
   "./bibliografia.bib" 1779362463.39996 20657 a3aed4d42efffc886315436d55c13268 ""
   "/usr/share/texlive/texmf-dist/bibtex/bst/base/unsrt.bst" 1775001600 18030 1376b4b231b50c66211e47e42eda2875 ""
-  "build/TFG.aux" 1779379009.88886 3392 ddf5a6024f0ad03bdde43aa314b7a100 "pdflatex"
+  "build/TFG.aux" 1779732502.586 3392 f4663e2b493e4be07b4f9f53e41d5952 "pdflatex"
   (generated)
   "build/TFG.bbl"
   "build/TFG.blg"
   (rewritten before read)
-["pdflatex"] 1779379008.01069 "/home/olmoviviens/Escritorio/Uni/Edge-of-chaos/Autovalores_de_matrices/LaTex/TFG.tex" "build/TFG.pdf" "TFG" 1779379010.64133 0
+["pdflatex"] 1779732500.07689 "/home/olmoviviens/Escritorio/Uni/Edge-of-chaos/Autovalores_de_matrices/LaTex/TFG.tex" "build/TFG.pdf" "TFG" 1779732503.49914 0
   "/home/olmoviviens/.texlive2023/texmf-var/web2c/pdftex/pdflatex.fmt" 1776164896 7753792 a4f6ad9ac9ca1906cc1a94f27c25980b ""
-  "/home/olmoviviens/Escritorio/Uni/Edge-of-chaos/Autovalores_de_matrices/LaTex/TFG.tex" 1779379003.64005 7228 5f26c79975ef06e12620a5016ae951e5 ""
+  "/home/olmoviviens/Escritorio/Uni/Edge-of-chaos/Autovalores_de_matrices/LaTex/TFG.tex" 1779732497.84399 7619 ad977476e8677ea0ad288db7fb628610 ""
   "/usr/share/texlive/texmf-dist/fonts/map/fontname/texfonts.map" 1577235249 3524 cb3e574dea2d1052e39280babc910dc8 ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy5.tfm" 1246382020 1120 1e8878807317373affa7f7bba4cf2f6a ""
   "/usr/share/texlive/texmf-dist/fonts/tfm/public/amsfonts/cmextra/cmbsy6.tfm" 1246382020 1124 14ccf5552bc7f77ca02a8a402bea8bfb ""
@@ -149,11 +149,11 @@
   "/usr/share/texlive/texmf-dist/web2c/texmf.cnf" 1775001600 40900 887e0dc8cac988a9e9c574af364cf837 ""
   "/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map" 1776166244.87001 4602615 ac1019cb4c4ba39710c2cf7f752b378d ""
   "Figures/Evolucion autovalores.png" 1774735949.136 63745 a09ef466aabe13793ab7f96233af8b31 ""
-  "TFG.tex" 1779379003.64005 7228 5f26c79975ef06e12620a5016ae951e5 ""
-  "build/TFG.aux" 1779379009.88886 3392 ddf5a6024f0ad03bdde43aa314b7a100 "pdflatex"
-  "build/TFG.bbl" 1779379007.99085 637 54f96d4e85a03e06de94786afdeb5399 "bibtex build/TFG"
-  "build/TFG.out" 1779379009.89286 1517 e13ff99d07416a095c942014c402cba0 "pdflatex"
-  "build/TFG.toc" 1779379009.89386 797 039157b4f03e6893d35f4669fb96a192 "pdflatex"
+  "TFG.tex" 1779732497.84399 7619 ad977476e8677ea0ad288db7fb628610 ""
+  "build/TFG.aux" 1779732502.586 3392 f4663e2b493e4be07b4f9f53e41d5952 "pdflatex"
+  "build/TFG.bbl" 1779701477.63776 637 54f96d4e85a03e06de94786afdeb5399 "bibtex build/TFG"
+  "build/TFG.out" 1779732502.592 1517 e13ff99d07416a095c942014c402cba0 "pdflatex"
+  "build/TFG.toc" 1779732502.592 797 3dae1b00c8b1be767fc5cafd8a7c2bfd "pdflatex"
   (generated)
   "build/TFG.aux"
   "build/TFG.log"

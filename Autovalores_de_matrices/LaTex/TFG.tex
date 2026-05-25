@@ -114,7 +114,15 @@ que en forma matricial se expresa como
 donde \(\alpha\) es el parámetro de aprendizaje \(\ll 1\) por lo general \footnote{Se añade la identidad en la ecuación \eqref{eq:antihebbian rule} para que una vez que \(x \ll 1\) debido a la retroalimentación negativa \(W\) no siga disminuyendo hasta apagar el sistema y que se restaure la actividad poco a poco}.
 
 \subsection{Aprendizaje antisimétrico}
-El término \(\Delta_L\) se encarga de codificar la información entrante mediante el estímulo \(b(t)\) y almacenarla en la matriz de conexiones de forma \emph{permanente}, para ello se hace uso de la parte antisimétrica de \(W\) que queda inalterada mediante la homeostásis para producir un patrón en las conexiones similar al que se genera mediante el aprendizaje tipo STDP (\emph{spike time dependent plasticity}) \cite{susman2019}
+El término \(\Delta_L\) se encarga de codificar la información entrante mediante el estímulo \(b(t)\) y almacenarla en la matriz de conexiones de forma \emph{permanente}, para ello se hace uso de la parte antisimétrica de \(W\) que queda inalterada mediante la homeostásis para producir un patrón en las conexiones que sea robusto ante la degradación de estas \cite{susman2019}.
+
+Siguiendo la estela del modelo de Hopfield, sería ideal que el término asociado a la memoria fuese capaz de almacenar un patrón y recuperarlo si se le proporciona un estímulo lo suficientemente parecido. Para ello de forma equivalente a cómo en el modelo de Hopfield la matriz de conexiones es simétrica con entradas dadas por \(\xi_i\xi_j\), 
+
+\begin{equation}
+  A = uv^T - vu^T
+\end{equation}
+para poder generar la matriz al estilo de 
+
 \begin{align}
   \Delta_L &= \eta \left(xy^T - yx^T\right)\\
   \tau \dot{y} &= y - x
@@ -125,7 +133,7 @@ El término \(\Delta_L\) se encarga de codificar la información entrante median
 
 \begin{figure}[H]
   \centering
-  \includegraphics[width=.8\linewidth]{Figures/Evolucion autovalores.png}
+  \includegraphics[width=\linewidth]{Figures/Evolucion autovalores.png}
    \caption{Evolución temporal de la parte real (\textbf{Izda.}) e imaginaria (\textbf{Dcha.}) de los autovalores de la matriz de conexiones, \(W\), con entradas \(W_{ij}\sim \mathcal{N}(0, 1)\), para \(N=20\), \(\alpha = 0.001\). La parte real de los autovalores positivos disminuye rápidamente en escala de tiempo \(t_{+} \simeq 1\), mientras que la parte negativa aumenta hasta 0 en escalas de \(t_{-} \simeq 10^3 = \frac{1}{\alpha}\), y como para tiempos mayores que \(t_{-}\) la parte real oscila en torno a 0. La parte imaginaria se mantiene constante en promedio excepto por ligeras perturbaciones que ocurren cuando la parte real del autovalor alcanza el máximo.}
 \end{figure}
 \cite{magnasco2009}
