@@ -1,6 +1,0 @@
-\babel@toc {spanish}{}\relax 
-\contentsline {section}{\numberline {1}Introducción}{3}{section.1}%
-\contentsline {section}{\numberline {2}Una sección}{3}{section.2}%
-\contentsline {subsection}{\numberline {2.1}Una subsección}{4}{subsection.2.1}%
-\contentsline {section}{\numberline {3}Conclusiones}{4}{section.3}%
-\contentsline {section}{Referencias}{5}{section.3}%
