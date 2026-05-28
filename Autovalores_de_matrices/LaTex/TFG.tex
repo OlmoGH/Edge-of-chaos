@@ -1,4 +1,4 @@
-\documentclass[12pt,a4paper]{article}
+\documentclass[12pt,a4paper]{report}
 
 % Idioma y codificación (si escribes en español)
 \usepackage[utf8]{inputenc}
@@ -51,18 +51,18 @@
 
 % Índice o tabla de contenidos
 \tableofcontents
-
 \newpage
 
-\section{Introducción}
+\chapter{Introducción}
 \begin{enumerate}
   \item Sistemas críticos
   \item Aprendizaje
   \item Criticidad autoorganizada
 \end{enumerate}
 
-\section{Fundamento teórico}
-\subsection{Modelo de red neuronal}
+\chapter{Modelo lineal y estabilidad de la red}
+
+\section{Modelo de red neuronal}
 Se va a emplear un modelo lineal de red neuronal en aras de simplificar el proceso de análisis y la interpretación de resultados, a pesar de la diferencia de la representación empleada con la realidad biológica. De este modo la actividad de la neurona \(i\) perteneciente a un sistema de \(N\) neuronas conectadas entre sí evoluciona según la ecuación \eqref{eq:evolución actividad}
 \begin{equation}
   \dot{x}_i = \sum_{j=1}^N w_{ij}x_j + b_i(t)
@@ -81,14 +81,29 @@ La matriz de conexiones que determina la evolución de \(x\) puede, así mismo, 
   \label{eq:evolución conexiones}
 \end{equation}
 
-\subsection{Estabilidad y criticidad}
-La estabilidad de un sistema dinámico \(\dot{x}(t) = f(x, t)\) viene dada por los autovalores del jacobiano del sistema definido como \(J = \partial_x f(x,t)\). Para sistemas multidimensionales el jacobiano resulta ser una matriz con entradas dadas por 
+\section{Estabilidad y análisis de autovalores}
+Se entiende como estabilidad de un sistema a la tendencia a la recuperación o modificación de la dinámica ante aparición de perturbaciones externas, ya sea debido al ruido o a las fluctuaciones propias de este. Para saber cómo responde la dinámica ante dicha alteración es útil estudiar la derivada que nos habla de cómo crece o disminuye dicha perturbación con el tiempo. Para ello es necesario encontrar los puntos estables del sistema que serán aquellos en los que no se producen cambios en el tiempo, que vendrán dados por
 
 \begin{equation}
-  J_{ij} = \parcial{f_i(x,t)}{x_j}
+  \dot{x} = 0\\
 \end{equation}
 
-Para que un sistema sea estable todos los autovalores de \(J\) deben ser negativos (o su parte real si son complejos). Si al menos uno es positivo el sistema se desetabiliza y diverge y si el autovalor mayor (o de parte real mayor) es 0 el sistema se denomina críticamente estable. Para la ecuación \eqref{eq:evolución actividad} la matriz jacobiana es \(W\) ya que el sistema es lineal por lo que para estudiar la estabilidad basta con conocer los autovalores de \(W\).
+Suponiendo que nuestro sistema no se encuentra sometido a impulsos externos, \(b(t) = 0\), y suponiendo que la conectividad es no nula, \(W\neq 0\), el único punto estable será \(\bar{x} = 0\). Al añadir una pequeña perturbación \(x = \bar{x} + \delta\), esta evolucionará según la dinámica
+
+\begin{equation}
+  \dot{x} = \dot{\delta} = W\delta
+\end{equation}
+
+Por tanto al diagonalizar \(W\)\footnote{En los siguientes capítulos supondremos que \(W\) es una matriz aleatoria, por lo que la existencia de \(N\) autovalores complejos diferentes está asegurada con probabilidad 1 \cite{mehta1991}} podemos escribir la evolución temporal de cada uno de los componentes de \(\delta\) como
+
+\begin{equation}
+  \dot{\delta}_i = \lambda_i \delta_i \Rightarrow \delta_i(t) = e^{\lambda_i t}\delta_i(0)
+\end{equation}
+
+Por lo tanto para que el sistema sea estable, esto es para \(\delta\) lo suficientemente pequeño \(\exists \epsilon \) tal que \( |\delta(t)| < \epsilon, \; \forall t\), esto solo es posible si \(\re{(\lambda_i)} \le 0\), lo cual debe cumplirse para todos los autovalores 
+
+
+Para la ecuación \eqref{eq:evolución actividad} la matriz jacobiana es \(W\) ya que el sistema es lineal por lo que para estudiar la estabilidad basta con conocer los autovalores de \(W\).
 
 En torno a un punto fijo, \(\dot{x}_{fix} = 0\), pequeñas perturbaciones, \(\delta x\), evolucionan según
 
@@ -97,7 +112,8 @@ En torno a un punto fijo, \(\dot{x}_{fix} = 0\), pequeñas perturbaciones, \(\de
 \end{equation}
  Por lo que el término asociado con la divergencia de \(|\delta x| = \), que es lo que determina la estabilidad, es \(\re(\lambda)\).
 
-\subsection{Homeostásis anti hebbiana}
+ \chapter{Aprendizaje anti-hebbiano y autoorganización}
+\section{Homeostásis anti hebbiana}
 La búsqueda de estabilidad en el sistema implica el control sobre la parte real de los autovalores de \(W\), para ello se tiene en cuenta que estos están \emph{asociados} a la parte simétrica de la matriz al igual que los imaginarios lo están a la antisimétrica \footnote{Con \emph{asociado} nos referimos a que las matrices simétricas (o hermíticas en general) sólo poseen autovalores reales mientras que las antisimétricas (antihermitianas) sólo imaginarios, además de que la parte real de los autovalores de una matriz está acotada por los autovalores de su parte simétrica e igual con la imaginaria \cite{bendixson1902}.}.
 
 Teniendo esto en cuenta se selecciona una dinámica que evite el crecimiento indefinido de la parte real de los autovalores limitando la parte simétrica de \(W\), por lo que empleando un modelo inspirado en el de Hopfield \cite{hopfield1982} o anti hebbiano \cite{magnasco2009} se consigue que el crecimiento de \(x\) frene la evolución de \(W\) creando un ciclo de retroalimentación negativa. El término regulador de las conexiones de la ecuación \eqref{eq:evolución conexiones} sería
@@ -113,7 +129,8 @@ que en forma matricial se expresa como
 \end{equation}
 donde \(\alpha\) es el parámetro de aprendizaje \(\ll 1\) por lo general \footnote{Se añade la identidad en la ecuación \eqref{eq:antihebbian rule} para que una vez que \(x \ll 1\) debido a la retroalimentación negativa \(W\) no siga disminuyendo hasta apagar el sistema y que se restaure la actividad poco a poco}.
 
-\subsection{Aprendizaje antisimétrico}
+\chapter{Dinámica de aprendizaje antisimétrica}
+\section{Aprendizaje antisimétrico}
 El término \(\Delta_L\) se encarga de codificar la información entrante mediante el estímulo \(b(t)\) y almacenarla en la matriz de conexiones de forma \emph{permanente}, para ello se hace uso de la parte antisimétrica de \(W\) que queda inalterada mediante la homeostásis para producir un patrón en las conexiones que sea robusto ante la degradación de estas \cite{susman2019}.
 
 Siguiendo la estela del modelo de Hopfield, sería ideal que el término asociado a la memoria fuese capaz de almacenar un patrón y recuperarlo si se le proporciona un estímulo lo suficientemente parecido. Para ello de forma equivalente a cómo en el modelo de Hopfield la matriz de conexiones es simétrica con entradas dadas por \(\xi_i\xi_j\), 
