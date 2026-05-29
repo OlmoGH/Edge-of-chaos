@@ -17,7 +17,7 @@
 \usepackage{booktabs}
 \usepackage{float}
 \usepackage[font=footnotesize, labelfont=bf]{caption}
-\usepackage{subfigure} 
+\usepackage{subfigure}
 
 % Referencias (hyperref siempre debe ser de los últimos)
 \usepackage{hyperref}
@@ -110,7 +110,7 @@ Por lo tanto para que el sistema sea estable, esto es para \(\delta\) lo suficie
 
 \chapter{Aprendizaje anti-hebbiano y autoorganización}
 \section{Homeostásis anti hebbiana}
-La búsqueda de estabilidad en el sistema implica el control sobre la parte real de los autovalores de \(W\), para ello se tiene en cuenta que estos están \emph{asociados} a la parte simétrica de la matriz al igual que los imaginarios lo están a la antisimétrica \footnote{Con \emph{asociado} nos referimos a que las matrices simétricas (o hermíticas en general) sólo poseen autovalores reales mientras que las antisimétricas (antihermitianas) sólo imaginarios, además de que la parte real de los autovalores de una matriz está acotada por los autovalores de su parte simétrica e igual con la imaginaria \cite{bendixson1902}.}.
+Como se ha comprobado en el capítulo anterior la búsqueda de estabilidad en el sistema implica el control sobre la parte real de los autovalores de \(W\), para ello se tiene en cuenta que estos están \emph{asociados} a la parte simétrica de la matriz al igual que los imaginarios lo están a la antisimétrica \footnote{Con \emph{asociado} nos referimos a que las matrices simétricas (o hermíticas en general) sólo poseen autovalores reales mientras que las antisimétricas (antihermitianas) sólo imaginarios, además de que la parte real de los autovalores de una matriz está acotada por los autovalores de su parte simétrica e igual con la imaginaria \cite{bendixson1902}.}.
 
 Teniendo esto en cuenta se selecciona una dinámica que evite el crecimiento indefinido de la parte real de los autovalores limitando la parte simétrica de \(W\), por lo que empleando un modelo inspirado en el de Hopfield \cite{hopfield1982} denominado anti hebbiano \cite{magnasco2009} se consigue que el crecimiento de \(x\) frene la evolución de \(W\) creando un ciclo de retroalimentación negativa. El término regulador de las conexiones de la ecuación \eqref{eq:evolución conexiones} sería
 
@@ -123,14 +123,19 @@ que en forma matricial se expresa como
   \Delta_H = \alpha\left(\mathbb{1}_N - xx^T\right)
   \label{eq:antihebbian rule}
 \end{equation}
-donde \(\alpha \ll 1\) es el parámetro de aprendizaje \footnote{Se añade la identidad en la ecuación \eqref{eq:antihebbian rule} para que una vez que \(x \ll 1\) debido a la retroalimentación negativa \(W\) no siga disminuyendo hasta apagar el sistema y que se restaure la actividad poco a poco.}.
+donde \(\alpha \ll 1\) es el parámetro de aprendizaje \footnote{Se añade la identidad en la ecuación \eqref{eq:antihebbian rule} para que una vez que \(x \ll 1\) debido a la retroalimentación negativa \(W\) no siga disminuyendo hasta apagar el sistema y que se restaure la actividad poco a poco.}. Es útil suponer que la extructura inicial de \(W\) no es clave para su evolución, por lo que inicializaremos las conexiones \(w_{ij}\) mediante elementos extraidos de una distribución \(\mathcal{N}(0, 1)\) para simular una condición inicial con el sistema \emph{no entrenado}. Dicha matriz \(W(t=0)\) posee autovalores distribuidos en el plano complejo de forma uniforme en el círculo de radio \(N\) (dimensión del sistema) para \(\lim_{N\rightarrow \infty}\), la denominada ley circular  \cite{tao2010}
 
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{Figures/circular law.pdf}
+  \caption{Espectro de una matriz con entradas \(w_{ij}\) que siguen una distribución \(\mathcal{N}\left(0, \frac{1}{\sqrt{N}}\right)\) para \(N = 10, \; 100, \; 1000\) donde se muestra como se cumple la ley circular a medida que aumenta \(N\), la dimensión de la matriz.}
+\end{figure}
 \section{Estudio de los autovalores de \(W\)}
 
 Inspirándose en el trabajo de otros grupos \cite{magnasco2009}
 \begin{figure}[H]
   \centering
-  \includegraphics[width=\linewidth]{Figures/Evolucion autovalores.png}
+  \includegraphics[width=\linewidth]{Figures/Evolucion coloreada.pdf}
    \caption{Evolución temporal de la parte real (\textbf{Izda.}) e imaginaria (\textbf{Dcha.}) de los autovalores de la matriz de conexiones, \(W\), con entradas \(W_{ij}\sim \mathcal{N}(0, 1)\), para \(N=20\), \(\alpha = 0.001\). La parte real de los autovalores positivos disminuye rápidamente en escala de tiempo \(t_{+} \simeq 1\), mientras que la parte negativa aumenta hasta 0 en escalas de \(t_{-} \simeq 10^3 = \frac{1}{\alpha}\), y como para tiempos mayores que \(t_{-}\) la parte real oscila en torno a 0. La parte imaginaria se mantiene constante en promedio excepto por ligeras perturbaciones que ocurren cuando la parte real del autovalor alcanza el máximo.}
 \end{figure}
 \cite{magnasco2009}
