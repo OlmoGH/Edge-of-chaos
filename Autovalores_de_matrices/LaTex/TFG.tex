@@ -123,7 +123,7 @@ que en forma matricial se expresa como
   \Delta_H = \alpha\left(\mathbb{1}_N - xx^T\right)
   \label{eq:antihebbian rule}
 \end{equation}
-donde \(\alpha \ll 1\) es el parámetro de aprendizaje \footnote{Se añade la identidad en la ecuación \eqref{eq:antihebbian rule} para que una vez que \(x \ll 1\) debido a la retroalimentación negativa \(W\) no siga disminuyendo hasta apagar el sistema y que se restaure la actividad poco a poco.}. Es útil suponer que la extructura inicial de \(W\) no es clave para su evolución, por lo que inicializaremos las conexiones \(w_{ij}\) mediante elementos extraidos de una distribución \(\mathcal{N}(0, 1)\) para simular una condición inicial con el sistema \emph{no entrenado}. Dicha matriz \(W(t=0)\) posee autovalores distribuidos en el plano complejo de forma uniforme en el círculo de radio \(N\) (dimensión del sistema) para \(\lim_{N\rightarrow \infty}\), la denominada ley circular  \cite{tao2010}
+donde \(\alpha \ll 1\) es el parámetro de aprendizaje \footnote{Se añade la identidad en la ecuación \eqref{eq:antihebbian rule} para que una vez que \(x \ll 1\) debido a la retroalimentación negativa \(W\) no siga disminuyendo hasta apagar el sistema y que se restaure la actividad poco a poco.}. Es útil suponer que la extructura inicial de \(W\) no es clave para su evolución, por lo que inicializaremos las conexiones \(w_{ij}\) mediante elementos extraidos de una distribución \(\mathcal{N}(0, \sigma)\) para simular una condición inicial con el sistema \emph{no entrenado}. Dicha matriz \(W(t=0)\) posee autovalores distribuidos en el plano complejo de forma uniforme en el círculo de radio \(\sigma\sqrt{N}\) para \(\lim_{N\rightarrow \infty}\), la denominada ley circular  \cite{tao2010}
 
 \begin{figure}[H]
   \centering
@@ -132,7 +132,7 @@ donde \(\alpha \ll 1\) es el parámetro de aprendizaje \footnote{Se añade la id
 \end{figure}
 \section{Estudio de los autovalores de \(W\)}
 
-Inspirándose en el trabajo de otros grupos \cite{magnasco2009}
+Al inicializar \(W\) con entradas generadas por una distribución normal\footnote{Al conjunto de matrices cuadradas reales con entradas independientes e idénticamente distribuidas según la distribución normal estándar se le denomina la colectividad de Ginibre, de la que se conocen una gran cantidad de propiedades \cite{ginibre1965} \cite{mehta1991}, lo cuál es sumamente útil para explicar las propiedades de nuestro sistema, como la existencia con probabilidad 1 de \(N\) autovalores complejos diferentes, sin embargo el análisis empleado no depende de la elección en la inicialización de la matriz ya que como la dinámica de \(W\) añade un término perturbativo que depende de \(x\), el cual inicialmente se ha obtenido de forma aleatoria, se puede demostrar que la matriz perturbada \(W + \delta W\) es diagonalizable con probabilidad 1, ya que el conjunto de matrices diagonalizables con autovalores diferentes es denso en el conjunto de todas las matrices \cite{horn1985}}, debido a la ley circular, en promedio la mitad de los autovalores tendrán parte real positiva, por lo que en \(t = 0\) la proyección de \(x\) sobre los modos o autovectores de \(W\) asociados a dichos autovalores crecerán exponencialmente hasta aumentar \(|x|^2\) a un valor mucho mayor que 1, independientemente de en qué valor se iniciase (que no sea 0).   \cite{magnasco2009}
 \begin{figure}[H]
   \centering
   \includegraphics[width=\linewidth]{Figures/Evolucion coloreada.pdf}
