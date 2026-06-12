@@ -1,4 +1,4 @@
-\documentclass[12pt,a4paper]{report}
+\documentclass[11pt,a4paper,twoside,pdf]{article}
 
 % Idioma y codificación (si escribes en español)
 \usepackage[utf8]{inputenc}
@@ -11,20 +11,23 @@
 \usepackage{physics}
 \usepackage{cancel}
 \usepackage{bbold}
+\usepackage{mathpazo}
 
 % Gráficos y Tablas
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{float}
 \usepackage[font=footnotesize, labelfont=bf]{caption}
-\usepackage{subfigure}
+\usepackage{subcaption}
 
-% Referencias (hyperref siempre debe ser de los últimos)
-\usepackage{hyperref}
+% Referencias
+\usepackage[colorlinks=true,urlcolor=blue,linkcolor=blue,citecolor=blue]{hyperref}
 \usepackage{cleveref}      % colors
 
 % Formato de la página, encabezado y pie de página
 \usepackage{fancyhdr}
+\usepackage[top=2.88cm,bottom=2.97cm,left=2.95cm,right=2.95cm]{geometry}
+\setlength{\parskip}{0.1cm}
 
 % Definición de comandos
 \newcommand{\parcial}[2]{\frac{\partial #1}{\partial #2}}
@@ -53,16 +56,64 @@
 \tableofcontents
 \newpage
 
-\chapter{Introducción}
-\begin{enumerate}
-  \item Sistemas críticos
-  \item Aprendizaje
-  \item Criticidad autoorganizada
-\end{enumerate}
+\section{Introducción}
 
-\chapter{Modelo lineal y estabilidad de la red}
+Durante los últimos años análisis avanzados del comportamiento del cerebro y la dinámica de las neronas, que han sido posibles de hacer solamente hace poco debido a las modernas técnicas de sensorización y de toma de datos, han mostrado una verdad sorprendente sobre el funcionamiento del que es posiblemente el mecanismo más complejo del universo. Por otra parte el estudio de las redes neuronales y cómo mejorar su rendimiento y su capacidad de análisis es un una de las áreas de vanguardia con mayor importancia tanto científica como social hoy en día debido al auge de la inteligencia artificial y los modelos de aprendizaje avanzados, donde tan solo mejorar los resultados un 10\% o un 1\% representa una ventaja abismal, debido a esto cualquier avance en la comprensión de cómo funciona nuestro propio cerebro es a su vez un paso adelante en la generación de la nueva generación de modelos de inteligencia artificial y de la búsqueda del nuevo paradigma en ciencia de redes neuronales. 
 
-\section{Modelo de red neuronal}
+La sorprendente verdad mencionada antes es que hoy en día cada vez hay más pruebas de que nuestro cerebro se encuentra trabajando en un régimen entre el \emph{caos} absoluto, donde cada perturbación genera una cascada de excitaciones que se propagan por toda la red de neuronas sin freno, similar a un ataque epiléptico constante, y un estado \emph{amortiguado} en el que cada estímulo recibido es anulado debido a la inactividad de las neuronas, como un paciente en coma, nuestro cerebro trabaja en lo que se denomina el \emph{borde del caos} siendo una región en la que la información que es posible almacenar y transmitir es máxima ya que esta región también posee una propiedad que va a ser clave a partir de ahora: es un punto crítico.
+
+\subsection{Sistemas críticos}
+\label{sec:Sistemas críticos}
+En termodinámica el estudio de las transiciones de fase discontinuas, como hielo derritiéndose en agua, muestran cómo el proceso se da a saltos teniendo en unos valores de presión y temperaturas concretos un sólido y al cambiarlos de forma infinitesimal un líquido pudiendo existir una coexistencia entre las dos fases en contacto, sin embargo en la naturaleza abundan las transiciones en las que el proceso se llava  cabo de forma continua, donde pasamos de tener un imán a temperaturas bajas a un material magnéticamente neutro a temperaturas altas. En las situaciones en las que el parámetro de orden, como la magnetización en el caso del imán, cambia de forma continua con el parámetro de control, la temperatura, existe un punto entre que el material está completamente desmagnetizado con cada uno de sus espines apuntando en una dirección aleatoria maximizando la entropía a temperaturas altas, y cuando los espines se empiezan a agrupar en islas con polarización similar para disminuir la energía generando magnetización no nula.
+
+\begin{figure}[htbp]
+  \centering\includegraphics[width=0.6\linewidth]{Figures/transicion_fase_ising_corregida.png}
+  \caption{Simulación del modelo de Ising para mostrar cómo para temperaturas menores a la temperatura crítica, \(T_c \simeq 2.269\), el sistema se encuentra ordenado minimizando la energía, y cómo para temperaturas mayores a la temperatura crítica el sistema se encuentra no magnetizado maximizando la entropía.}
+  \label{fig:ising}
+\end{figure}
+
+Sin embargo cuando la temperatura se encuentra justamente en el punto en el que no domina la minimización de energía ni la maximización de entropía, donde el sistema está \emph{a punto} de magnetizarse pero no lo está aún, y el comportamiento es completamente diferente al de cualquiera de las otras dos fases decimos que estamos en el punto crítico caracterizado por una plétora de propiedades diferentes, todas ellas gobernadas por una simple relación no lineal: las leyes de potencias.
+
+\begin{figure}[htbp]
+  \centering
+  \begin{subfigure}[t]{0.48\textwidth}
+    \includegraphics[width=\linewidth]{Figures/Ising_critico_sin_labels.png}
+    \subcaption{Modelo de Ising en el punto crítico. Se observa cómo en el punto crítico aparecen formaciones de todas las escalas, característica de un fractal.}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.48\textwidth}
+    \includegraphics[width=0.8\linewidth]{Figures/Magnetizacion.png}
+    \subcaption{Magnetización en función de la temperatura. Se observa cómo para \(T < T_c\) la magnetización es no nula creciendo desde 0, mientras que para \(T\ge T_c\) la magnetización es 0, situando al punto crítico se sitúa justo entre ambos regímenes.}
+  \end{subfigure}
+\end{figure}
+
+El punto crítico se define por ser el punto en el que el parámetro del control, como la temperatura, es tal que el parámetro de orden, como la magnetización, es justo 0 al borde de la fase ordenada. En este punto las propiedades del material como la magnetización, el calor específico, la susceptibilidad magnética o la longitud de correlación siguen una ley de potencias frente a la temperatura
+
+\begin{align}
+    M(T) &\propto (T_c-T)^\beta\\
+    C(T) &\propto |T_c-T|^\alpha\\
+    \chi(T) &\propto |Tc-T|^{-\gamma}\\
+    \xi(T) &\propto |T_c - T|^{-\nu}
+\end{align}
+
+Los exponentes que caracterizan el comportamiento de cada magnitud en torno al punto crítico se denominan exponentes críticos y lo interesante es que no dependen de las propiedades microscópicas del fenómeno, sino de la simetría que posea el parámetro de orden o la dimensión del sistema (1D, 2D, \(\dots\)), por lo que varios fenómenos en principio desconectados, como el modelo de Ising bidimensional y el cambio de fase entre líquido y gas por encima del punto crítico, tienen exactamente el mismo comportamiento cerca del punto crítico, por tanto algo sumamente útil a la hora de estudiar un sistema crítico será conocer sus exponentes, ya que estos determinan de forma unívoca la clase de universalidad a la que pertenecen.
+
+\subsection{Criticidad auto organizada y cerebro crítico}
+
+La región crítica en la mayoría de los sistemas se trata de una región de medida nula, un punto, por lo que cualquier perturbación hace que un sistema que se encuentre en el punto crítico salga de este perdiendo las propiedades citadas, sin embargo a finales del siglo pasado varios investigadores \cite{bak1987} sacaron a la luz cómo en ciertos sistemas como los terremotos, los incencios forestales o los granos que caen en una montañita de arena el sistema se sitúa en un punto en el que ciertas propiedades como la magnitud de un terremoto, el tamaño de un incencio o el tamaño de las avalanchas de arena siguen una distribución de tipo ley de potencias
+
+\begin{equation}
+  P(S) \propto S^{-\tau}
+\end{equation}
+
+A esta propiedad de alcanzar una dinámica gobernada por leyes de potencias sin necesidad de ajustar ningún parámetro de forma externa se le denominó criticidad auto organizada (\emph{Self-Organized Criticality}) debido a que es la estructura del sistema la que impone que el parámetro de control, como el estrés acumulado en las placas tectónicas, la cantidad de combustible en el bosque o la pendiente de la pila de arena aumente hasta alcanzar un valor crítico por encima del cual se genera una \emph{avalancha} en setido general que disminuye el parámetro de control para que no supere ese valor crítico.
+
+Tras este descubrimiento gran cantidad de científicos intentaron aplicar la teoría de criticidad auto organizada para explicar diferentes fenómenos encontrados en la dinámica de las avalanchas de respuestas neuronales en el cortex del cerebro \cite{beggs2003} generando una \emph{avalancha} a su vez de investigaciones en neurofísica sobre la dinámica del cerebro. Parte de este cambio de paradigma a la hora de enfrentarse al estudio de los sistemas dinámicos terminó salpicando el terreno de las redes neuronales y la inteligencia artificial donde desde hace tan solo una década han empezado a generarse avances exponenciales en el desarrollo de nuevas tecnologías, y dentro de uno de estos avances de vanguardia se encuentran nuevos indicios de que las redes neuronales que trabajan en un régimen cercano al punto crítico (en el sentido dinámico, ni en una fase absorbente ni caótica) maximizan su capacidad de analizar y procesar información.
+
+Es justo en esta nueva tendencia en la que se basa este trabajo, y es que se pretende estudiar si un modelo de dinámica neuronal como la anti hebbiana que se comentará más adelante es capaz de auto organizarse hasta un punto crítico y qué beneficios o ventajas puede tener a la hora de emplearlo en modelos de redes neuronales más complejas.
+
+\section{Modelo lineal y estabilidad de la red}
+\subsection{Modelo de red neuronal}
 Se va a emplear un modelo lineal de red neuronal en aras de simplificar el proceso de análisis y la interpretación de resultados, a pesar de la diferencia de la representación empleada con la realidad biológica. De este modo la actividad de la neurona \(i\) perteneciente a un sistema de \(N\) neuronas conectadas entre sí evoluciona según la ecuación \eqref{eq:evolución actividad}
 \begin{equation}
   \dot{x}_i = \sum_{j=1}^N w_{ij}x_j + b_i(t)
@@ -81,7 +132,7 @@ La matriz de conexiones que determina la evolución de \(x\) puede, así mismo, 
   \label{eq:evolución conexiones}
 \end{equation}
 
-\section{Estabilidad y análisis de autovalores}
+\subsection{Estabilidad y análisis de autovalores}
 Se entiende como estabilidad de un sistema a la tendencia a la recuperación o modificación de la dinámica ante aparición de perturbaciones externas, ya sea debido al ruido o a las fluctuaciones propias de este. Para saber cómo responde la dinámica ante dicha alteración es útil estudiar la derivada que nos habla de cómo crece o disminuye dicha perturbación con el tiempo. Para ello es necesario encontrar los puntos estables del sistema que serán aquellos en los que no se producen cambios en el tiempo, que vendrán dados por
 
 \begin{equation}
@@ -108,8 +159,8 @@ Por lo tanto para que el sistema sea estable, esto es para \(\delta\) lo suficie
   \caption{Diagrama de estabilidad en el plano complejo del sistema \(\dot{x} = Wx\). La existencia de autovalores en la zona roja \(\re{(\lambda)}>0\) implica la inestabilidad del sistema.}
 \end{figure}
 
-\chapter{Aprendizaje anti-hebbiano y autoorganización}
-\section{Homeostásis anti hebbiana}
+\section{Aprendizaje anti-hebbiano y autoorganización}
+\subsection{Homeostásis anti hebbiana}
 Como se ha comprobado en el capítulo anterior la búsqueda de estabilidad en el sistema implica el control sobre la parte real de los autovalores de \(W\), para ello se tiene en cuenta que estos están \emph{asociados} a la parte simétrica de la matriz al igual que los imaginarios lo están a la antisimétrica \footnote{Con \emph{asociado} nos referimos a que las matrices simétricas (o hermíticas en general) sólo poseen autovalores reales mientras que las antisimétricas (antihermitianas) sólo imaginarios, además de que la parte real de los autovalores de una matriz está acotada por los autovalores de su parte simétrica e igual con la imaginaria \cite{bendixson1902}.}.
 
 Teniendo esto en cuenta se selecciona una dinámica que evite el crecimiento indefinido de la parte real de los autovalores limitando la parte simétrica de \(W\), por lo que empleando un modelo inspirado en el de Hopfield \cite{hopfield1982} denominado anti hebbiano \cite{magnasco2009} se consigue que el crecimiento de \(x\) frene la evolución de \(W\) creando un ciclo de retroalimentación negativa. El término regulador de las conexiones de la ecuación \eqref{eq:evolución conexiones} sería
@@ -130,31 +181,76 @@ donde \(\alpha \ll 1\) es el parámetro de aprendizaje \footnote{Se añade la id
   \includegraphics[width=\linewidth]{Figures/circular law.pdf}
   \caption{Espectro de una matriz con entradas \(w_{ij}\) que siguen una distribución \(\mathcal{N}\left(0, \frac{1}{\sqrt{N}}\right)\) para \(N = 10, \; 100, \; 1000\) donde se muestra como se cumple la ley circular a medida que aumenta \(N\), la dimensión de la matriz.}
 \end{figure}
-\section{Estudio de los autovalores de \(W\)}
+\subsection{Estudio de los autovalores de \(W\)}
 
-Al inicializar \(W\) con entradas generadas por una distribución normal\footnote{Al conjunto de matrices cuadradas reales con entradas independientes e idénticamente distribuidas según la distribución normal estándar se le denomina la colectividad de Ginibre, de la que se conocen una gran cantidad de propiedades \cite{ginibre1965} \cite{mehta1991}, lo cuál es sumamente útil para explicar las propiedades de nuestro sistema, como la existencia con probabilidad 1 de \(N\) autovalores complejos diferentes, sin embargo el análisis empleado no depende de la elección en la inicialización de la matriz ya que como la dinámica de \(W\) añade un término perturbativo que depende de \(x\), el cual inicialmente se ha obtenido de forma aleatoria, se puede demostrar que la matriz perturbada \(W + \delta W\) es diagonalizable con probabilidad 1, ya que el conjunto de matrices diagonalizables con autovalores diferentes es denso en el conjunto de todas las matrices \cite{horn1985}}, debido a la ley circular, en promedio la mitad de los autovalores tendrán parte real positiva, por lo que en \(t = 0\) la proyección de \(x\) sobre los modos o autovectores de \(W\) asociados a dichos autovalores crecerán exponencialmente hasta aumentar \(|x|^2\) a un valor mucho mayor que 1, independientemente de en qué valor se iniciase (que no sea 0).   \cite{magnasco2009}
+Al inicializar \(W\) con entradas generadas por una distribución normal\footnote{Al conjunto de matrices cuadradas reales con entradas independientes e idénticamente distribuidas según la distribución normal estándar se le denomina la colectividad de Ginibre, de la que se conocen una gran cantidad de propiedades \cite{ginibre1965} \cite{mehta1991}, lo cuál es sumamente útil para explicar las propiedades de nuestro sistema, como la existencia con probabilidad 1 de \(N\) autovalores complejos diferentes, sin embargo el análisis empleado no depende de la elección en la inicialización de la matriz ya que como la dinámica de \(W\) añade un término perturbativo que depende de \(x\), el cual inicialmente se ha obtenido de forma aleatoria, se puede demostrar que la matriz perturbada \(W + \delta W\) es diagonalizable con probabilidad 1, ya que el conjunto de matrices diagonalizables con autovalores diferentes es denso en el conjunto de todas las matrices \cite{horn1985}}, debido a la ley circular, en promedio la mitad de los autovalores tendrán parte real positiva, por lo que en \(t \simeq 0\) la evolución de \(x\) vendrá dictaminada por aquellos modos con \(\re(\lambda) > 0\). El módulo de dichos modos aumenta de forma drástica, por lo que el término \(-xx^T\) de la matriz \(\dot{W}\) se hace muy negativa, lo que hace negativa a \(W\), haciendo que \(x\) disminuya a su vez hasta valores cercanos a 0, en este momento el término \(\mathbb{1}\) se hace relevante y genera un crecimiento de \(W\) linealmente, que a su vez hace crecer \(x\) \cite{magnasco2009}.
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{Figures/Flowchart.pdf}
+  \caption{Diagrama de flujo de la retroalimentación negativa entre \(W\) y \(x\) generada por el aprendizaje anti hebbiano.}
+\end{figure}
+
+En la figura \ref{fig:picos} se observa cómo para un sistema con pocas neuronas cada uno de los picos diferenciados está asociado a la \emph{caída} de la parte real de uno de los autovalores, ya que es concretamente el modo asociado a ese autovalor el que aumenta, lo que no afecta al resto de autovalores ya que en el momento en el que el autovalor \(\lambda_i\) pasa a tener parte real mayor a 0 el vector queda proyectado casi completamente en esa dirección
+
+\begin{equation}
+  x \simeq (u_i^\dagger) x v_i
+\end{equation}
+
+donde \(v_i\) y \(u_i\) son los autovectores de \(W\), por la derecha y por la izquierda respectivamente, con autovalor \(\lambda_i\), por lo que la dinámica de \(W\) se puede simplificar como 
+
+\begin{equation}
+  \dot{W} \simeq -\alpha |x_i|^2 v_i {v_i}^\dagger, \quad x_i = u_i^\dagger x
+\end{equation}
+
+que es una matriz de rango 1 con autovalor \(-\alpha|x_i|^2\) y autovector \(v_i\), por lo que le estamos restando al modo \(v_i\) un valor cada vez más grande que lo va frenando hasta hacer \(\re(\lambda_i)<0\) donde empieza a disminuir la amplitud del modo hasta que vuelve a ser un modo sin importancia.
+
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{Figures/Picos.pdf}
+  \caption{\textbf{Izda.:} Evolución de la parte real de los autovalores de \(W\) con el tiempo. Se observa cómo oscilan en torno a \(x=0\) con diferentes amplitudes. El autovalor morado se corresponde con un par complejo conjugado , mientras que el resto son autovalores puramente reales. \textbf{Dcha.:} Evolución de \(|x|^2\), se observan picos pronunciados que se corresponden temporalmente con \emph{caidas} en la parte real de los autovalores. Simulación para \(N = 5\) y \(\alpha = 0.001\)}
+  \label{fig:picos}
+\end{figure}
+
+La figura \ref{fig:evolución autovalores} muestra cómo antes de producirse las oscilaciones en la parte real de los autovalores, aquellos con parte real mayor que 0 caen rápidamente hasta tener parte real menor que 0, y los autovalores reales con parte imaginaria menor que 0 aumentan linealmente (que en diagrama logarítmico se ve como exponencial) con pendiente \(\alpha\). Mientras, la parte imaginaria se mantiene mínimamente perturbada ya que aunque la parte antisimétrica de \(W\) se mantiene constante no es posible estudiar la parte imaginaria de los autovalores con la parte antisimétrica ya que no es cierto que los autovalores de \(A = \frac{W-W^T}{2}\) sean la parte imaginaria de los autovalores de \(W\) aunque sirvan para acotarlos.
+
 \begin{figure}[H]
   \centering
   \includegraphics[width=\linewidth]{Figures/Evolucion coloreada.pdf}
-   \caption{Evolución temporal de la parte real (\textbf{Izda.}) e imaginaria (\textbf{Dcha.}) de los autovalores de la matriz de conexiones, \(W\), con entradas \(W_{ij}\sim \mathcal{N}(0, 1)\), para \(N=20\), \(\alpha = 0.001\). La parte real de los autovalores positivos disminuye rápidamente en escala de tiempo \(t_{+} \simeq 1\), mientras que la parte negativa aumenta hasta 0 en escalas de \(t_{-} \simeq 10^3 = \frac{1}{\alpha}\), y como para tiempos mayores que \(t_{-}\) la parte real oscila en torno a 0. La parte imaginaria se mantiene constante en promedio excepto por ligeras perturbaciones que ocurren cuando la parte real del autovalor alcanza el máximo.}
+   \caption{Evolución temporal de la parte real (\textbf{Izda.}) e imaginaria (\textbf{Dcha.}) de los autovalores de la matriz de conexiones, \(W\), con entradas \(W_{ij}\sim \mathcal{N}(0, 1)\), para \(N=20\), \(\alpha = 0.001\). La parte real de los autovalores positivos disminuye rápidamente en escala de tiempo \(t_{+} \simeq 1\), mientras que la parte negativa aumenta hasta 0 en escalas de \(t_{-} \simeq 10^3 = \frac{1}{\alpha}\), mientras que para tiempos mayores que \(t_{-}\) la parte real oscila en torno a 0. La parte imaginaria se mantiene constante en promedio excepto por ligeras perturbaciones que ocurren cuando la parte real del autovalor alcanza el máximo en las oscilaciones.}
+   \label{fig:evolución autovalores}
 \end{figure}
-\cite{magnasco2009}
 
-\chapter{Dinámica de aprendizaje antisimétrica}
-\section{Aprendizaje antisimétrico}
-El término \(\Delta_L\) se encarga de codificar la información entrante mediante el estímulo \(b(t)\) y almacenarla en la matriz de conexiones de forma \emph{permanente}, para ello se hace uso de la parte antisimétrica de \(W\) que queda inalterada mediante la homeostásis para producir un patrón en las conexiones que sea robusto ante la degradación de estas \cite{susman2019}.
+\subsection{Criticidad y avalanchas}
 
-Siguiendo la estela del modelo de Hopfield, sería ideal que el término asociado a la memoria fuese capaz de almacenar un patrón y recuperarlo si se le proporciona un estímulo lo suficientemente parecido. Para ello de forma equivalente a cómo en el modelo de Hopfield la matriz de conexiones es simétrica con entradas dadas por \(\xi_i\xi_j\), 
+En la sección \ref{sec:Sistemas críticos} se estipula que la criticidad viene acompañada de leyes de potencias, además de esto la mayoría de trabajos fundadores de la teoría de criticidad auto organizada \cite{beggs2003} muestran que las redes neuronales con dicha propiedad muestran distribuciones de leyes de potencias tanto en los picos de la actividad de las neuronas como en los autovalores de la matriz de covarianza. Para comprobar si el modelo anti hebbiano cumple dichas propiedades se ha medido las avalanchas de actividad en la red según se especifica en los métodos \ref{sec:medidas de avalanchas} 
+
+\subsection{Estabilidad frente al estímulos externos}
+
+\section{Dinámica de aprendizaje antisimétrica}
+\subsection{Aprendizaje antisimétrico}
+Hasta ahora el análisis se ha centrado en cómo el aaprendizaje anti hebbiano es capaz de mantener la red estable a lo largo del tiempo independientemente de los estímulos externos que se le aplique a la red, por lo que el paso siguiente es estudiar cómo combinar dicha capacidad de estabilizar la red con una dinámica de aprendizaje capaz de almacenar información  en la propia matriz de conexiones entre neuronas. Para ello recurrimos a la ecuación \eqref{eq:evolución conexiones} donde el término \(\Delta_L\) se encarga de codificar la información entrante mediante cualquiero tipo de estímulo y almacenarla en la matriz de conexiones de forma \emph{permanente}, para hacer esto posible se emplea la parte antisimétrica de \(W\) que queda inalterada mediante la homeostásis para producir un patrón en las conexiones que sea robusto ante la degradación de estas \cite{susman2019}.
+
+Siguiendo la estela del modelo de Hopfield, sería ideal que el término asociado a la memoria fuese capaz de almacenar un patrón y recuperarlo si se le proporciona un estímulo lo suficientemente parecido. Para ello de forma equivalente a cómo en el modelo de Hopfield la matriz de conexiones es simétrica con entradas dadas por \(\xi_i\xi_j\) siendo \(\vec{\xi}\) el vector cuya información deseamos almacenar, para obtener una matriz antisimétrica el rango debe ser al menos 2 por lo que construiremos nuestra matriz de la forma
 
 \begin{equation}
-  A = uv^T - vu^T
+  A = \rho(uv^T - vu^T)
 \end{equation}
-para poder generar la matriz al estilo de 
 
+siendo \(u\) y \(v\) el par de vectores cuya información queremos almacenar. Sin pérdida de generalidad supondremos que \(u\) y \(v\) son ortonormales\footnote{Si no lo fuesen y tomamos la base ortonormal del plano \(uv\) como \(\{x,y\}\), siendo \(u = u_x x + u_y y\) y \(v = v_x x + v_y y\), la matriz \(A\) sería \(A = uv^T - vu^T = u_x v_x xx^T + u_x v_y xy^T + u_yv_x yx^T +u_yv_y yy^T - v_xu_x xx^T - v_x u_y xy^T - v_yu_x yx^T - v_yu_y yy^T = (u_xv_y-u_yv_x)(xy^T - yx^T)\), por lo que siempre se puede escribir como una matriz antisimétrica generada por dos vectores ortonormales reescalada por el módulo del producto vectorial entre los vectores originales.} por lo que, de forma intuitiva, si en el modelo de Hopfield el atractor del sistema es un punto ya que la matriz de conexiones es de rango 1, en este nuevo modelo antisimétrico la variedad que almacena la información se trata de un plano (ya que si rotamos \(u\) y \(v\) dentro del plano que generan la matriz sigue siendo exactamente la misma). Por tanto si añadimos como término de aprendizaje \(\Delta_L = \)
+
+
+\subsection{Implementación STDP}
 \begin{align}
   \Delta_L &= \eta \left(xy^T - yx^T\right)\\
   \tau \dot{y} &= y - x
 \end{align}
+
+\section{Métodos}
+\subsection{Medida de las avalanchas de actividad en la red neuronal}
+\label{sec:medidas de las avalanchas}
+Según varios autores \cite{beggs2003} en una red de neuronas trabajando cerca del estado crítico que experimenta picos de actividad, si agrupamos los picos 
 
 \newpage
 
