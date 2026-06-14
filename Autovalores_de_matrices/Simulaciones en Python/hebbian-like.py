@@ -220,6 +220,18 @@ def anti_hebbian_network_rk4(STEPS, W_0, X_0, DT, ALPHA):
     return X_time_series, W_time_series
 
 @njit(fastmath=True)
+def anti_hebbian_euler_learning(STEPS, W_0, X_0, DT, ALPHA, input_W):
+    dim = X_0.shape[0]
+    X = np.zeros((STEPS, dim))
+    W = np.zeros((STEPS, dim, dim))
+    X[0] = X_0
+    W[0] = W_0
+
+    I = np.eye(dim)
+    for t in range(STEPS):
+        
+
+@njit(fastmath=True)
 def evolucion_modificada(steps, X_0, dt, alpha):
     dim = X_0.shape[0]
     X_time_series = np.zeros((steps, dim))
@@ -239,13 +251,20 @@ steps = int(time/dt)
 t_eval = np.linspace(0, time, steps)
 alpha = 0.001
 threshold = 4
+rho = 4
 
 np.random.seed(3456)
 W_0 = np.random.randn(dim, dim)
-# A_0 = (W_0 - W_0.T)/2
-# S_0 = (W_0 + W_0.T)/2
+u = np.random.standard_normal(dim)
+u = u / np.linalg.norm(u)
 
-# W_0 = A_0 +0.1 * S_0
+v = np.random.standard_normal(dim)
+v = v - np.dot(u, v) * u
+v = v / np.linalg.norm(v)
+
+A = rho * (np.outer(u, v) - np.outer(v, u))
+
+
 X_0 = np.random.randn(dim)
 
 data = anti_hebbian_network_rk4(steps, W_0, X_0, dt, alpha)

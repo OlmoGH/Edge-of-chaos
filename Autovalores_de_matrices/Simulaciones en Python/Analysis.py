@@ -220,8 +220,13 @@ X_out = INPUT_X_RANGE[1]
 rng_u = np.random.default_rng(42)
 rng_v = np.random.default_rng(69)
 
-u = np.sign(rng_u.standard_normal(DIM)) / np.sqrt(DIM)
-v = np.sign(rng_v.standard_normal(DIM)) / np.sqrt(DIM)
+u = np.sign(rng_u.standard_normal(DIM))
+u = u / np.linalg.norm(u)
+
+v = np.sign(rng_v.standard_normal(DIM))
+v = v - np.dot(u, v) * u
+v = v / np.linalg.norm(v)
+
 input_u = np.zeros((SIMULATED_STEPS, DIM))
 input_v = np.zeros((SIMULATED_STEPS, DIM))
 input_u[X_in:X_out] = u
