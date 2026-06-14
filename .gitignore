@@ -16,3 +16,5 @@
 *.bbl
 *.out
 *.pdf
+
+!Autovalores_de_matrices/LaTex/Figures/**
