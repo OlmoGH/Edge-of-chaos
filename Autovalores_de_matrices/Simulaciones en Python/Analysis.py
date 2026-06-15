@@ -248,8 +248,9 @@ plt.show()
 #######################
 
 # Simulamos la red con los parámetros dados
+print("Simulando ...")
 STDP_Euler.Simulate_and_save_STDP(X, W, INPUT_X, ALPHA, TAU, DT, DIM, SIMULATED_STEPS, CHUNK_STEPS, SKIP, calc_eigenvalues)
-
+print("Simulación terminada")
 #-------------------------------------------------------------------------
 
 ####################

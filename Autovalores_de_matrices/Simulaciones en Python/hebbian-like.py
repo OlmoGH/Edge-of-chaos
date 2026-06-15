@@ -10,70 +10,6 @@ from scipy import signal
 from scipy.linalg import expm
 from tqdm import tqdm
 
-# 1. Creamos una pequeña función auxiliar para determinantes 2x2 a mano
-@njit(fastmath=True)
-def _det2x2(A):
-    return A[0, 0] * A[1, 1] - A[0, 1] * A[1, 0]
-
-# 2. La función principal optimizada para Numba
-@njit(fastmath=True)
-def _calcular_overlaps_numba(u, v, all_evals, all_evecs):
-    dim = u.shape[0]
-    T = all_evals.shape[0]
-    overlaps = np.zeros(T)
-
-    # Creamos la matriz U de forma Numba-friendly (sin column_stack)
-    U = np.zeros((dim, 2), dtype=np.complex128)
-    U[:, 0] = u
-    U[:, 1] = v
-    
-    # Determinante de UU (es real y positivo, aplicamos abs por precisión numérica)
-    UU = np.abs(_det2x2(U.T.conj() @ U))
-
-    # Pre-asignamos la matriz R una sola vez fuera del bucle para ahorrar memoria
-    R = np.zeros((dim, 2), dtype=np.complex128)
-
-    for t in range(T):
-        evals = all_evals[t]
-        evecs = all_evecs[t]
-
-        # Ordenamos los índices por la parte imaginaria
-        idx = np.argsort(evals.imag)
-        
-        # Asignamos las columnas directamente a la matriz R existente
-        R[:, 0] = evecs[:, idx[0]]   # Menor parte imaginaria
-        R[:, 1] = evecs[:, idx[-1]]  # Mayor parte imaginaria
-
-        # Multiplicaciones de matrices
-        gram_RR = R.T.conj() @ R
-        gram_UR = U.T.conj() @ R
-
-        # Calculamos determinantes de 2x2 a la velocidad del rayo
-        RR = np.abs(_det2x2(gram_RR))
-        UR = _det2x2(gram_UR)
-
-        # Guardamos el overlap absoluto
-        overlaps[t] = np.abs(UR) / np.sqrt(RR * UU)
-
-    return overlaps
-
-# 3. Función envoltorio (Wrapper) que usarás en tu código principal
-def overlap_uv_max_imag(u, v, W):
-    T = W.shape[0]
-    dim = W.shape[1]
-    
-    # Pre-calculamos los autovalores y autovectores en NumPy (soporta complex128)
-    all_evals = np.zeros((T, dim), dtype=np.complex128)
-    all_evecs = np.zeros((T, dim, dim), dtype=np.complex128)
-    
-    # Aseguramos que W sea complejo
-    W_complex = W.astype(np.complex128)
-    
-    for t in tqdm(range(T)):
-        all_evals[t], all_evecs[t] = np.linalg.eig(W_complex[t])
-        
-    # Le pasamos los arrays cocinados a Numba
-    return _calcular_overlaps_numba(u, v, all_evals, all_evecs)
 
 def track_eigsystem_fixed(matrices):
     T, N, _ = matrices.shape
@@ -348,6 +284,68 @@ def anti_hebbian_network_rk4(STEPS, W_0, X_0, DT, ALPHA):
         W_time_series[t] = w + (DT / 6.0) * (k1_W + 2.0 * k2_W + 2.0 * k3_W + k4_W)
         
     return X_time_series, W_time_series
+ 
+@njit(fastmath=True)
+def evolucion_modificada(steps, X_0, dt, alpha):
+    dim = X_0.shape[0]
+    X_time_series = np.zeros((steps, dim))
+    X_time_series[0] = X_0
+    
+    for t in range(1, steps):
+        if t % int(0.1 * steps) == 0:
+            print("Paso", t, "/", steps)
+            
+        X_time_series[t] = X_time_series[t-1] + dt * (alpha * X_time_series[t-1] - np.linalg.norm(X_time_series[t-1])**2 * X_time_series[t-1])
+    return X_time_series
+
+@njit(fastmath=True)
+def _det2x2(A):
+    return A[0, 0] * A[1, 1] - A[0, 1] * A[1, 0]
+
+@njit(fastmath=True)
+def overlap_uv(u, v, W_array):
+    steps = W_array.shape[0]
+    dim = u.shape[0]
+    
+    overlaps = np.zeros(steps, dtype=np.float64)
+
+    # 1. Plano U
+    U = np.zeros((dim, 2), dtype=np.complex128)
+    U[:, 0] = u
+    U[:, 1] = v
+    UU = np.abs(_det2x2(U.T.conj() @ U))
+
+    # Matriz R de autovectores
+    R = np.zeros((dim, 2), dtype=np.complex128)
+
+    # --- LA SOLUCIÓN DEFINITIVA ---
+    # Creamos el buffer directamente como COMPLEX128.
+    # Al ser un array nuevo, es contiguo (adiós error de Intel MKL ZGEBAL)
+    W_t = np.zeros((dim, dim), dtype=np.complex128)
+
+    for t in range(steps):
+        # Copiamos la rebanada real en nuestro molde complejo
+        W_t[:, :] = W_array[t]
+        
+        # Ahora el input es complejo y el output es complejo (adiós error Domain Change)
+        evals, evecs = np.linalg.eig(W_t)
+
+        idx_max = np.argmax(evals.imag)
+        v_max = evecs[:, idx_max]
+        v_min = np.conjugate(v_max)
+
+        R[:, 0] = v_min
+        R[:, 1] = v_max
+
+        gram_RR = R.T.conj() @ R
+        gram_UR = U.T.conj() @ R
+
+        RR = np.abs(_det2x2(gram_RR))
+        UR = _det2x2(gram_UR)
+
+        overlaps[t] = np.abs(UR) / np.sqrt(RR * UU)
+
+    return overlaps
 
 @njit(fastmath=True)
 def anti_hebbian_euler_learning(STEPS, W_0, X_0, DT, ALPHA, input_W):
@@ -376,33 +374,20 @@ def anti_hebbian_euler_learning(STEPS, W_0, X_0, DT, ALPHA, input_W):
                 W[t, i, j] = W[t-1, i, j] + DT * dWdt[i, j]
     
     return X, W
-        
-@njit(fastmath=True)
-def evolucion_modificada(steps, X_0, dt, alpha):
-    dim = X_0.shape[0]
-    X_time_series = np.zeros((steps, dim))
-    X_time_series[0] = X_0
-    
-    for t in range(1, steps):
-        if t % int(0.1 * steps) == 0:
-            print("Paso", t, "/", steps)
-            
-        X_time_series[t] = X_time_series[t-1] + dt * (alpha * X_time_series[t-1] - np.linalg.norm(X_time_series[t-1])**2 * X_time_series[t-1])
-    return X_time_series
+       
 
-
-dim = 20
+dim = 100
 time = 20000
 dt = 0.1
 steps = int(time/dt)
 t_eval = np.linspace(0, time, steps)
 alpha = 0.001
 threshold = 4
-rho = 5
+rho = 10
 
-np.random.seed(45432)
-W_0 = np.random.randn(dim, dim)
-X_0 = np.random.randn(dim)
+np.random.seed(11)
+W_0 = np.random.randn(dim, dim) / np.sqrt(dim)
+X_0 = np.random.randn(dim) / np.sqrt(dim)
 
 u = np.random.standard_normal(dim)
 u = u / np.linalg.norm(u)
@@ -429,21 +414,22 @@ print("Simulación terminada")
 
 # Comprobamos el overlapping entre el plano uv y el de los autovectores con parte imaginaria mayor
 print("Calculando overlaps ...")
-overlaps = overlap_uv_max_imag(u, v, W)
+overlaps = overlap_uv(u, v, W)
 print("Overlaps calculados")
 
-plt.plot(overlaps)
-plt.axvspan(inicio, inicio+duracion, alpha=0.5)
-plt.show()
 
 eigenvalues = track_eigenvalues_numba(W)
 
-fig, ax = plt.subplots(ncols=2)
+fig, ax = plt.subplots(ncols=2, nrows=2)
 
-ax[0].plot(eigenvalues.real)
-ax[1].plot(eigenvalues.imag)
+ax[0, 0].plot(eigenvalues.real)
+ax[0, 1].plot(eigenvalues.imag)
+ax[1, 0].plot(overlaps)
+ax[1, 1].plot(np.linalg.norm(X, axis=1))
 
-ax[0].axvspan(inicio, inicio+duracion, alpha=0.5)
-ax[1].axvspan(inicio, inicio+duracion, alpha=0.5)
+ax[0, 0].axvspan(inicio, inicio+duracion, alpha=0.5)
+ax[0, 1].axvspan(inicio, inicio+duracion, alpha=0.5)
+ax[1, 0].axvspan(inicio, inicio+duracion, alpha=0.5)
+ax[1, 1].axvspan(inicio, inicio+duracion, alpha=0.5)
 
 plt.show()
