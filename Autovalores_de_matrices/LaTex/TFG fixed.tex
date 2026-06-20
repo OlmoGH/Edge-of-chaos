@@ -39,6 +39,7 @@
 \fancyhf{}
 \fancyhead[R]{\nouppercase{\leftmark}}
 \fancyfoot[R]{\thepage}
+\captionsetup{subrefformat=parens}
 
 \author{Olmo Viviens Blázquez}
 \title{Emergencia de la Criticidad en Redes Neuronales Mediante el Aprendizaje}
@@ -246,26 +247,28 @@ que en forma matricial se expresa como
 \end{equation}
 donde \(\alpha \ll 1\) es el parámetro de aprendizaje \footnote{Se añade la identidad en la ecuación \eqref{eq:antihebbian rule} para que una vez que \(x \ll 1\) debido a la retroalimentación negativa \(W\) no siga disminuyendo hasta apagar el sistema y que se restaure la actividad poco a poco.}. Esta dinámica ha sido bautizada como anti hebbiana ya que al contrario que en la hebbiana podemos interpretar la dinámica como "\emph{Las neuronas que se activan juntas se desconectan entre sí}"
 
+Al inicializar \(W\) con entradas aleatorias parte de los autovalores tendrán parte real positiva, por lo que en \(t \simeq 0\) la evolución de \(x\) vendrá dictaminada por aquellos modos con \(\re(\lambda) > 0\). El módulo de dichos modos aumenta de forma drástica, por lo que el término \(-xx^T\) de la matriz \(\dot{W}\) se hace muy negativa, lo que hace negativa a \(W\), haciendo que \(x\) disminuya a su vez hasta valores cercanos a 0, en este momento el término \(\mathbb{1}\) se hace relevante y genera un crecimiento de \(W\) linealmente, que a su vez hace crecer \(x\) \cite{magnasco2009} como se observa en la figura \ref{fig:dinamica anti hebbiana}.
+
 \begin{figure}[htbp]
-  \centering
-  \includegraphics[width=.8\linewidth]{Figures/Flowchart.pdf}
-  \caption{Diagrama de flujo de la retroalimentación negativa entre \(W\) y \(x\) generada por el aprendizaje anti hebbiano.}
+  \begin{subfigure}[t]{0.38\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{Figures/Magnasco real eigenvalues.png}
+    \phantomcaption
+    \label{fig:Evolucion parte real Magnasco}
+  \end{subfigure}
+  \hfill
+  \begin{subfigure}[t]{0.6\linewidth}
+    \centering
+    \includegraphics[width=\linewidth]{Figures/Flowchart.pdf}
+    \phantomcaption
+    \label{fig:diagrama de flujo}
+  \end{subfigure}
+  \caption{\subref{fig:Evolucion parte real Magnasco} Relajación de la parte real de los autovalores de la matriz \(W\) al hacer evolucionar el sistema con la dinámica anti hebbiana. Figura extraída de \cite{magnasco2009}. \subref{fig:diagrama de flujo} Diagrama de flujo de la retroalimentación negativa entre \(W\) y \(x\) generada por el aprendizaje anti hebbiano.}
+  \label{fig:dinamica anti hebbiana}
 \end{figure}
 
-Al inicializar \(W\) con entradas generadas por una distribución normal, debido a la ley circular, en promedio la mitad de los autovalores tendrán parte real positiva, por lo que en \(t \simeq 0\) la evolución de \(x\) vendrá dictaminada por aquellos modos con \(\re(\lambda) > 0\). El módulo de dichos modos aumenta de forma drástica, por lo que el término \(-xx^T\) de la matriz \(\dot{W}\) se hace muy negativa, lo que hace negativa a \(W\), haciendo que \(x\) disminuya a su vez hasta valores cercanos a 0, en este momento el término \(\mathbb{1}\) se hace relevante y genera un crecimiento de \(W\) linealmente, que a su vez hace crecer \(x\) \cite{magnasco2009}.
-
-\subsection{Pequeño apunte sobre teoría de matrices aleatorias}
-Es útil suponer que la extructura inicial de \(W\) no es clave para su evolución, por lo que inicializaremos las conexiones \(w_{ij}\) mediante elementos extraidos de una distribución \(\mathcal{N}(0, \sigma)\) para simular una condición inicial con el sistema \emph{no entrenado}. Dicha matriz \(W(t=0)\) posee autovalores distribuidos en el plano complejo de forma uniforme en el círculo de radio \(\sigma\sqrt{N}\) para \(\lim_{N\rightarrow \infty}\), la denominada ley circular  \cite{tao2010}
-
-Al conjunto de matrices cuadradas reales con entradas independientes e idénticamente distribuidas según la distribución normal estándar se le denomina la colectividad de Ginibre, de la que se conocen una gran cantidad de propiedades \cite{ginibre1965} \cite{mehta1991}, lo cuál es sumamente útil para explicar las propiedades de nuestro sistema, como la existencia con probabilidad 1 de \(N\) autovalores complejos diferentes, sin embargo el análisis empleado no depende de la elección en la inicialización de la matriz ya que como la dinámica de \(W\) añade un término perturbativo que depende de \(x\), el cual inicialmente se ha obtenido de forma aleatoria, se puede demostrar que la matriz perturbada \(W + \delta W\) es diagonalizable con probabilidad 1, ya que el conjunto de matrices diagonalizables con autovalores diferentes es denso en el conjunto de todas las matrices \cite{horn1985}.
-
-\begin{figure}[H]
-  \centering
-  \includegraphics[width=\linewidth]{Figures/circular law.pdf}
-  \caption{Espectro de una matriz con entradas \(w_{ij}\) que siguen una distribución \(\mathcal{N}\left(0, \frac{1}{\sqrt{N}}\right)\) para \(N = 10, \; 100, \; 1000\) donde se muestra como se cumple la ley circular a medida que aumenta \(N\), la dimensión de la matriz.}
-\end{figure}
 \subsection{Aprendizaje anti simétrico y STDP}
-Hasta ahora el análisis se ha centrado en cómo el aaprendizaje anti hebbiano es capaz de mantener la red estable a lo largo del tiempo independientemente de los estímulos externos que se le aplique a la red, por lo que el paso siguiente es estudiar cómo combinar dicha capacidad de estabilizar la red con una dinámica de aprendizaje capaz de almacenar información  en la propia matriz de conexiones entre neuronas. Para ello recurrimos a la ecuación \eqref{eq:evolución conexiones} donde el término \(\Delta_L\) se encarga de codificar la información entrante mediante cualquiero tipo de estímulo y almacenarla en la matriz de conexiones de forma \emph{permanente}, para hacer esto posible se emplea la parte antisimétrica de \(W\) que queda inalterada mediante la homeostásis para producir un patrón en las conexiones que sea robusto ante la degradación de estas \cite{susman2019}.
+La característica principal de que la dinámica que se encarga de estabilizar el sistema sea puramente simétrica implica que la parte antisimétrica de a matriz \(W\), \(A = \frac{W-W^T}{2}\), queda inalterada durante todo el proceso, \(\dot{A} = 0\), por lo que es interesante desarrollar algún tipo de dinámica que sea antisimétrica que nos permita almacenar información en la parte antisimétrica de \(W\). Para ello recurrimos a la ecuación \eqref{eq:evolución conexiones} donde el término \(\Delta_L\) se encarga de codificar la información entrante mediante cualquiero tipo de estímulo y almacenarla en la matriz de conexiones de forma \emph{permanente} \cite{susman2019}.
 
 Siguiendo la estela del modelo de Hopfield, sería ideal que el término asociado a la memoria fuese capaz de almacenar un patrón y recuperarlo si se le proporciona un estímulo lo suficientemente parecido. Para ello de forma equivalente a cómo en el modelo de Hopfield la matriz de conexiones es simétrica con entradas dadas por \(\xi_i\xi_j\) siendo \(\vec{\xi}\) el vector cuya información deseamos almacenar, para obtener una matriz antisimétrica el rango debe ser al menos 2 por lo que construiremos nuestra matriz de la forma
 
@@ -273,17 +276,59 @@ Siguiendo la estela del modelo de Hopfield, sería ideal que el término asociad
   A = \rho(uv^T - vu^T)
 \end{equation}
 
-siendo \(u\) y \(v\) el par de vectores cuya información queremos almacenar. Sin pérdida de generalidad supondremos que \(u\) y \(v\) son ortonormales\footnote{Si no lo fuesen y tomamos la base ortonormal del plano \(uv\) como \(\{x,y\}\), siendo \(u = u_x x + u_y y\) y \(v = v_x x + v_y y\), la matriz \(A\) sería \(A = uv^T - vu^T = u_x v_x xx^T + u_x v_y xy^T + u_yv_x yx^T +u_yv_y yy^T - v_xu_x xx^T - v_x u_y xy^T - v_yu_x yx^T - v_yu_y yy^T = (u_xv_y-u_yv_x)(xy^T - yx^T)\), por lo que siempre se puede escribir como una matriz antisimétrica generada por dos vectores ortonormales reescalada por el módulo del producto vectorial entre los vectores originales.} por lo que, de forma intuitiva, si en el modelo de Hopfield el atractor del sistema es un punto ya que la matriz de conexiones es de rango 1, en este nuevo modelo antisimétrico la variedad que almacena la información se trata de un plano (ya que si rotamos \(u\) y \(v\) dentro del plano que generan la matriz sigue siendo exactamente la misma). Por tanto si añadimos como término de aprendizaje \(\Delta_L = \)
-
-
-\subsection{Implementación STDP}
+Para la construcción de dicha matriz recurrimos a un tipo de dinámica presente en ciertos tipos de aprendizaje qu eposee una direcccionalidad bien definida, la plasticidad dependiente del tiempo de disparo o STDP\footnote{Spike-time-dependent plasticity}. Esta regla determina que cuando la neurona presináptica \(x_i\) dispara antes que la post sináptica \(x_j\) la conexión en la dirección \(x_i \rightarrow x_j\) se refuerza mientras que la conexión en la dirección contraria \(x_j \rightarrow x_i\) se debilita, haciendo que \(W_{ij}\) y \(W_ji\) se modifiquen de forma opuesta, lo que podemos aproximar como una alteración antisimétrica de \(W\). Para ello se propone un método basado en \cite{susman2019} en el que se toma 
 \begin{align}
   \Delta_L &= \eta \left(xy^T - yx^T\right)\\
-  \tau \dot{y} &= y - x
+  \dot{y} &= \frac{1}{\tau}(x(t) - y)
 \end{align}
 
+El término \((\Delta_L)_{ij}\) representa la conexión en la dirección \(x_j \rightarrow x_i\) siendo \(y\) la actividad de las neuronas suavizada mostrando un eco o rastro de la actividad de cada neurona en tiempos anteriores, por lo que si a tiempo \(t\) la neurona \(x_j\) ha disparado hace poco \(y_j\) será grande y por lo tanto si \(x_i\) está disparando \(x_i y_j\) será grande también, pero si ocurre al revés y es la neurona post sináptica \(x_i\) la que ha disparado antes \(y_i\) será grande y al estar disparando \(x_j\) el término \(x_jy_i\) será el que domine. 
+
+\begin{equation}
+  (\Delta_L)_{ij} = \eta \Big( \underbrace{x_i y_j}_{\substack{\text{Causal:} \\ j \text{ dispara antes que } i}} - \underbrace{x_j y_i}_{\substack{\text{Anti-causal:} \\ i \text{ dispara antes que } j}} \Big)
+\end{equation}
+
+Al añadirle a la dinámica de las neuronas un estímulo \(b(t)\) generado por la combinación lineal de dos vectores \(u\) y \(v\) de la forma \(b(t) = \alpha(t) u + \beta(t) v\), siendo \(\alpha(t)\) y \(\beta(t)\) escalares que dependen del tiempo una vez pasado un tiempo \(t\simeq \tau\) el vector \(y\) se encontrará mayormente embabido en el plano \(uv\) al igual que \(x\), por lo que el término de aprendizaje se podrá expresar como 
+
+\begin{equation}
+  \Delta_L = \rho(uv^T - vu^T)
+\end{equation}
+
+Como se verá más adelante dicha aproximación resultará útil para obtener resultados significativos ya que el planteamiento expuesto por \cite{susman2019} presenta varios problemas que se comentarán más adelante.
 
 \section{Resultados y discusión}
+\subsection{Teoría de matrices aleatorias y existencia de autovalores}
+Es útil suponer que la extructura inicial de \(W\) no es clave para su evolución, por lo que inicializaremos las conexiones \(w_{ij}\) mediante elementos extraidos de una distribución normal \(\mathcal{N}(0, \sigma)\) para simular una condición inicial con el sistema \emph{no entrenado}. Dicha matriz \(W(t=0)\) posee autovalores distribuidos en el plano complejo de forma uniforme en el círculo de radio \(\sigma\sqrt{N}\) para \(\lim_{N\rightarrow \infty}\) según la ley circular \cite{tao2010}
+
+\begin{figure}[H]
+  \centering
+  \includegraphics[width=\linewidth]{Figures/circular law.pdf}
+  \caption{Espectro de una matriz con entradas \(w_{ij}\) que siguen una distribución \(\mathcal{N}\left(0, \frac{1}{\sqrt{N}}\right)\) para \(N = 10, \; 100, \; 1000\) donde se muestra como se cumple la ley circular a medida que aumenta \(N\), la dimensión de la matriz.}
+\end{figure}
+
+Al conjunto de matrices cuadradas reales con entradas independientes e idénticamente distribuidas según la distribución normal estándar se le denomina la colectividad de Ginibre, de la que se conocen una gran cantidad de propiedades \cite{ginibre1965} \cite{mehta1991}, lo cuál es sumamente útil para explicar las propiedades de nuestro sistema, como la existencia con probabilidad 1 de \(N\) autovalores complejos diferentes, sin embargo el análisis empleado no depende de la elección en la inicialización de la matriz ya que como la dinámica de \(W\) añade un término perturbativo que depende de \(x\), el cual inicialmente se ha obtenido de forma aleatoria, se puede demostrar que la matriz perturbada \(W + \delta W\) es diagonalizable con probabilidad 1, ya que el conjunto de matrices diagonalizables con autovalores diferentes es denso en el conjunto de todas las matrices \cite{horn1985}.
+
+Sin embargo aunque la existencia de \(N\) autovalores diferentes implique la existencia de \(N\) autovectores \(v\) tal que
+
+\begin{equation}
+  Wv = \lambda v
+\end{equation}
+
+Al escoger la matriz \(W\) de forma aleatoria la probabilidad de que sea normal, esto es \([W,W^T]=0\), es 0 \cite{mehta1991}, por lo que los autovectores no serán ortogonales entre sí, solo linealmente independientes\footnote{Concretamente si \(W\) es normal los \(N\) autovectores formarán una base ortogonal del espacio de Hilbert \((\mathbb{C}^N, \mathbb{C}, \braket{\cdot}{\cdot})\)}, por lo que la descomposición ortogonal de \(x\) en autovectores de \(W\) deberá tener en cuenta los autovectores por la izquierda de \(W\), \(u\), que cumplen
+
+\begin{equation}
+  u^\dagger W = \lambda u\dagger
+\end{equation}
+ya que para estos dos conjuntos de vectores es posible aplicar la condición de ortonormalidad
+
+\begin{equation}
+  u_i^\dagger v_j = \delta_{ij} \Rightarrow \mathbb{1} = \sum_{i=1}^N v_i u_i^\dagger
+\end{equation}
+por tanto la descomposición de \(x\) en autovectores de \(W\) sería
+
+\begin{equation}
+  x = \sum_{i=1}^N x_i v_i, \quad x_i = u_i^\dagger x
+\end{equation}
 \subsection{Dinámica de autovalores de la red y criticidad dinámica}
 En la figura \ref{fig:picos} se observa cómo para un sistema con pocas neuronas cada uno de los picos diferenciados está asociado a la \emph{caída} de la parte real de uno de los autovalores, ya que es concretamente el modo asociado a ese autovalor el que aumenta, lo que no afecta al resto de autovalores ya que en el momento en el que el autovalor \(\lambda_i\) pasa a tener parte real mayor a 0 el vector queda proyectado casi completamente en esa dirección
 
