@@ -335,7 +335,30 @@ Esta descomposición nos será útil más adelante para estudiar cómo cada uno 
 \subsection{Dinámica de autovalores de la red y criticidad dinámica}
 En primera instancia se ha llevado a cabo un estudio en profundidad del sistema, haciendo evolucionar \(x\) mediante la ecuación \eqref{eq:evolución actividad} y \(W\) solo mediante el aprendizaje anti hebbiano \eqref{eq:antihebbian rule} buscando replicar los resultados de \cite{magnasco2009} sobre la dinámica de la parte real de los autovalores \ref{fig:Evolucion parte real Magnasco} y la existencia de criticidad dinámica en la actividad de las neuronas.
 
-La retroalimentación negativa La figura \ref{fig:evolución autovalores} muestra cómo antes de producirse las oscilaciones en la parte real de los autovalores, aquellos con parte real mayor que 0 caen rápidamente hasta tener parte real menor que 0, y los autovalores reales con parte imaginaria menor que 0 aumentan linealmente (que en diagrama logarítmico se ve como exponencial) con pendiente \(\alpha\). Mientras, la parte imaginaria se mantiene mínimamente perturbada ya que aunque la parte antisimétrica de \(W\) se mantiene constante no es posible estudiar la parte imaginaria de los autovalores con la parte antisimétrica ya que no es cierto que los autovalores de \(A = \frac{W-W^T}{2}\) sean la parte imaginaria de los autovalores de \(W\) aunque sirvan para acotarlos.
+Para obtener una intuición de cómo afecta la la retroalimentación negativa a la actividad y las conexiones es útil estudiar el sistema unidimensional y entender los resultados que arroja
+
+\begin{align}
+  \dot{x} &= Wx\\
+  \dot{W} &= \alpha(1 - x^2)
+\end{align}
+
+como ahora el sistema es unidimensional podemos calcular la primera integral, que será el Hamiltoniano, una constante del movimiento
+
+\begin{align}
+  \frac{dW}{dx} &= \frac{\dot{W}}{\dot{x}} = \frac{\alpha(1-x^2)}{Wx}\Rightarrow\\
+  WdW &= \alpha\left( \frac{1}{x} - x \right)dx \Rightarrow\\
+  H(x, W) &= \frac{1}{2}W^2 + \alpha\frac{1}{2}x^2-\alpha\ln|x| \label{eq:hamiltoniano}
+\end{align}
+
+Como podemos observar la ecuación \eqref{eq:hamiltoniano} representa el Hamiltoniano de un oscilador no lineal con una repulsión fuerte en torno a \(x=0\), por lo que las soluciones en \(x\) y \(W\) serán oscilatorias. Para el sistema multidimensional no es posible encontrar una constante del movimiento\footnote{Estrictamente sí conocemos una constante del movimiento, que es la parte antisimétrica de la matriz de conexiones, \(A = \frac{W+W^T}{2}\), ya que la regla anti hebbiana es simétrica, pero no nos habla de la dinámica de \(x\) y \(W\).}, sin embargo el sistema seguirá el mismo patrón de oscilaciones como comprobaremos más adelante. Igualmente, aunque para el sistema unidimensional sí tenemos soluciones analíticas para \(x\) y \(W\) en función de las funciones \(\mathcal{P}\) de Weierstrass, para el sistema con dimensión \(N>1\) no es posible encontrar una solución exacta. El problema reside en que cuando aumentamos la dimensión aparecen las interacciones entre las neuronas y con los diferentes elementos de la matriz de conexiones, que al ser no lineales, no podemos encontrar despejar para encontrar constantes del movimiento, además tanto \(x\) como \(W\) dejan de ser periódicas como en el caso unidimensional, figura \ref{fig:norma diferentes dimensiones}, y pasan a tener un comportamiento aparéntemente caótico y desordenado.
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{Figures/Norma X diferentes dimensiones.pdf}
+  \caption{Evolución de \(|x|^2\) para diferentes dimensiones del sistema una vez que se ha pasado el transitorio. Para \(N=1\) el sistema tanto en \(x\) como en \(W\) es periódico y con solución analítica en función de las funciones \(\mathcal{P}\) de Weierstrass, pero una vez que \(N>1\) la periodicidad se pierde y \(|x|^2\) parece componerse de muchos picos diferentes en vez de un tren de picos iguales hasta llegar a fundirse entre ellos para \(N \gg 1\).}
+  \label{fig:norma diferentes dimensiones}
+\end{figure}
+
+En cuanto a la dinámica de los autovalores que es mencionada en \cite{magnasco2009}, se ha conseguido replicar la figura \ref{fig:Evolucion parte real Magnasco} del paper mencionado con datos propios, observando en la figura \ref{fig:evolución autovalores} cómo antes de producirse las oscilaciones en la parte real de los autovalores, aquellos con parte real mayor que 0 caen rápidamente hasta tener parte real menor que 0, y los autovalores reales con parte imaginaria menor que 0 aumentan linealmente (que en diagrama logarítmico se ve como exponencial) con pendiente \(\alpha\). Además, a diferencia de en el paper, observamos como la parte imaginaria se mantiene mínimamente perturbada como esperábamos debido a que l aparte antisimétrica de \(W\) se mantiene constante, sin embargo no es posible estudiar la parte imaginaria de los autovalores únicamente con la parte antisimétrica de la matriz ya que no es cierto que los autovalores de \(A = \frac{W-W^T}{2}\) sean la parte imaginaria de los autovalores de \(W\), aunque sirvan para acotarlos \cite{bendixson1902}. Una vez atravesado el transitorio observamos cómo los autovalores oscilan en torno al 0, de forma esperada debido a que la estabilidad del sistema requiere que no haya autovalores que se mantengan con parte real mayor que 0 de forma indefinida.
 
 \begin{figure}[H]
   \centering
@@ -344,6 +367,14 @@ La retroalimentación negativa La figura \ref{fig:evolución autovalores} muestr
    \label{fig:evolución autovalores}
 \end{figure}
 
+Sin embargo a pesar de que el sistema aparenta ser caótico y desordenado a aumentar la dimensión debido a las interacciones, es posible \emph{desacoplar} el vector \(x\) en las componentes de los autovectores de \(W\) y escribir el sistema \emph{desacoplado} en función de las variables \(x_i = u_i^\dagger x\), \(\tilde{x}_i=v_i^\dagger x\) \(\dot{x}_i = u_i^\dagger \dot{x}\) como 
+
+\begin{align}
+  \dot{x}_i &= \lambda_i x_i\\
+  \dot{\lambda}_i &= \alpha(1-x_i\tilde{x}_i^\dagger)
+\end{align}
+
+Donde se ha empleado que \(\dot{\lambda}_i = u_i^\dagger \dot{W}v_i\) \cite{greenbaum2020}. Hay que notas que la primera ecuación no relaciona \(x_i\) con su derivada, sino \(x\) y \(\dot{x}\) en la dirección del autovalor \(v_i\), esto es importante porque la derivada de \(x_i\) no es \(\dot{x}_i\), sino un término mucho más complicado que requiere calcular la derivada de los autovectores, y además \(\tilde{x}_i \neq x_i\) ya que \(u_i \neq v_i\) para matrices no normales, por eso la proyección del sistema en cada uno de las direcciones de los autovalores no se comporta exacamente con la dinámica unidimensional discutida antes, pero se le parece lo suficiente como para que sea relevante a la hora de hacer análisis de 
 En la figura \ref{fig:picos} se observa cómo para un sistema con pocas neuronas cada uno de los picos diferenciados está asociado a la \emph{caída} de la parte real de uno de los autovalores, ya que es concretamente el modo asociado a ese autovalor el que aumenta, lo que no afecta al resto de autovalores ya que en el momento en el que el autovalor \(\lambda_i\) pasa a tener parte real mayor a 0 el vector queda proyectado casi completamente en esa dirección
 
 \begin{equation}
