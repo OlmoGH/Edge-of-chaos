@@ -85,15 +85,16 @@ Sin embargo cuando la temperatura se encuentra justamente en el punto en el que 
 
 \begin{figure}[htbp]
   \centering
-  \begin{subfigure}[t]{0.55\textwidth}
+  \begin{subfigure}[c]{0.55\textwidth}
+    \caption{}
     \includegraphics[width=\linewidth]{Figures/Ising_critico_sin_labels.png}
-    \subcaption{Modelo de Ising en el punto crítico. Se observa cómo en el punto crítico aparecen formaciones de todas las escalas, característica de un fractal.}
   \end{subfigure}
   \hfill
-  \begin{subfigure}[t]{0.44\textwidth}
+  \begin{subfigure}[c]{0.44\textwidth}
+    \caption{}
     \includegraphics[width=\linewidth]{Figures/Magnetizacion.png}
-    \subcaption{Magnetización en función de la temperatura. Se observa cómo para \(T < T_c\) la magnetización es no nula creciendo desde 0, mientras que para \(T\ge T_c\) la magnetización es 0, situando al punto crítico se sitúa justo entre ambos regímenes.}
   \end{subfigure}
+  \caption{\textbf{Izquierda:} Modelo de Ising en el punto crítico. Se observa cómo en el punto crítico aparecen formaciones de todas las escalas, característica de un fractal. \textbf{Derecha:} Magnetización en función de la temperatura. Se observa cómo para \(T < T_c\) la magnetización es no nula creciendo desde 0, mientras que para \(T\ge T_c\) la magnetización es 0, situando al punto crítico se sitúa justo entre ambos regímenes.}
 \end{figure}
 
 El punto crítico se define por ser el punto en el que el parámetro del control, como la temperatura, es tal que el parámetro de orden, como la magnetización, es justo 0 al borde de la fase ordenada. En este punto las propiedades del material como la magnetización, el calor específico, la susceptibilidad magnética o la longitud de correlación siguen una ley de potencias frente a la temperatura
@@ -122,7 +123,7 @@ Dentro de dichos avances se encontró que para que dichos sistemas se auto organ
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=.8\linewidth]{Figures/SOC serena.png}
-  \caption{Esquema de la dinámica de un sistema SOC paradigmático donde las regiones activa y absorbente están separadas por un punto crítico en torno al que el sistema se localiza de forma automática mediante los mecanismos de carga y disipación \cite{buendia2020}.}
+  \caption{Esquema de la dinámica de un sistema SOC paradigmático donde las regiones activa y absorbente están separadas por un punto crítico en torno al que el sistema se localiza de forma automática mediante los mecanismos de carga y disipación extraído de  \cite{buendia2020}.}
 \end{figure}
 
 Este tipo de criticidad se diferencia de la observada en modelos estáticos como el de Ising, donde el tiempo no representa un parámetro importante del sistema, pues el estado en el que se encuentra la red a una temperatura se considera estacionario, pues en los sistemas que exhiben criticidad auto organizada necesitan de la evolución constante del mismo para poder \emph{adaptarse} y modificar su comportamiento constantemente para estructurarse en torno a punto crítico. Esta es denominada criticidad dinámica, pues ese choque entre fuerzas de excitación e inhibición perfectamente balanceadas es la que produce un estado sumamente suscetible ante pequeñas perturbaciones, situado entre la región absorbente, donde cada perturbación introducida en el sistema es anulada, y la región activa, que alimenta las perturbaciones hasta desestabilizar el sistema, en lo que se denomina el \emph{borde del caos}.
@@ -197,7 +198,7 @@ que es el menor valor posible que puede tomar \(E\) (para el caso de tan solo un
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{Figures/Hopfield.pdf}
-  \caption{Una red neuronal de Hopfield es capaz de almacenar varias memorias y recuperarlas tras introducir un estímulo parecido. Añadimos dos patrones de memoria a la matriz de conexiones, una fresa y una carita feliz, y comenzamos con un vector de neuronas con cada uno de los dos patrones para luego añadirle ruido al patrón para que el sistema contenga la información del patrón original solo parcilamente. Presentándole este vector de 1s y -1s a la matriz de conexiones somos capaces, de una sola pasada, de recuperar totalmente el patrón original en ambos casos mediante la misma matriz de conexiones.}
+  \caption{Una red neuronal de Hopfield es capaz de almacenar varias memorias y recuperarlas tras introducir un estímulo parecido. Añadimos dos patrones de memoria a la matriz de conexiones, una fresa y una carita feliz, y comenzamos con un vector de neuronas con cada uno de los dos patrones para luego añadirle ruido al patrón para que el sistema contenga la información del patrón original solo parcialmente. Presentándole este vector de 1s y -1s a la matriz de conexiones somos capaces, de una sola pasada, de recuperar totalmente el patrón original en ambos casos mediante la misma matriz de conexiones.}
 \end{figure}
 
 \subsection{Aprendizaje hebbiano}
@@ -308,7 +309,7 @@ El término \((\Delta_L)_{ij}\) representa la conexión en la dirección \(x_j \
   (\Delta_L)_{ij} = \eta \Big( \underbrace{x_i y_j}_{\substack{\text{Causal:} \\ j \text{ dispara antes que } i}} - \underbrace{x_j y_i}_{\substack{\text{Anti-causal:} \\ i \text{ dispara antes que } j}} \Big)
 \end{equation}
 
-Al añadirle a la dinámica de las neuronas un estímulo \(b(t)\) generado por la combinación lineal de dos vectores \(u\) y \(v\) de la forma \(b(t) = \alpha(t) u + \beta(t) v\), siendo \(\alpha(t)\) y \(\beta(t)\) escalares que dependen del tiempo una vez pasado un tiempo \(t\simeq \tau\) el vector \(y\) se encontrará mayormente embabido en el plano \(uv\) al igual que \(x\), por lo que el término de aprendizaje se podrá expresar como 
+Al añadirle a la dinámica de las neuronas un estímulo \(s(t)\) generado por la combinación lineal de dos vectores \(u\) y \(v\) de la forma \(s(t) = p_u(t) u + p_v(t) v\), siendo \(p_u(t)\) y \(p_v(t)\) escalares que dependen del tiempo. Una vez pasado un tiempo \(t\simeq \tau\) el vector \(y\) se encontrará mayormente embabido en el plano \(uv\) al igual que \(x\), por lo que el término de aprendizaje se podrá expresar, con algunos matices, como 
 
 \begin{equation}
   \Delta_L = \rho(uv^T - vu^T)
@@ -337,7 +338,7 @@ Sin embargo aunque la existencia de \(N\) autovalores diferentes implique la exi
 Al escoger la matriz \(W\) de forma aleatoria la probabilidad de que sea normal, esto es \([W,W^T]=0\), es 0 \cite{mehta1991}, por lo que los autovectores no serán ortogonales entre sí, solo linealmente independientes\footnote{Concretamente si \(W\) es normal los \(N\) autovectores formarán una base ortogonal del espacio de Hilbert \((\mathbb{C}^N, \mathbb{C}, \braket{\cdot}{\cdot})\)}, por lo que la descomposición ortogonal de \(x\) en autovectores de \(W\) deberá tener en cuenta los autovectores por la izquierda de \(W\), \(u\), que cumplen
 
 \begin{equation}
-  u^\dagger W = \lambda u\dagger
+  u^\dagger W = \lambda u^\dagger
 \end{equation}
 ya que para estos dos conjuntos de vectores es posible aplicar la condición de biortoginalidad
 
@@ -409,7 +410,7 @@ En la figura \ref{fig:picos} se observa este efecto, donde cada una de las \emph
 \begin{figure}[htbp]
   \centering
   \includegraphics[width=\linewidth]{Figures/Picos.pdf}
-  \caption{\textbf{Izquierda.} Evolución de la parte real de los autovalores de \(W\) con el tiempo. Se observa cómo oscilan en torno a \(\re(\lambda)=0\) con diferentes amplitudes. El autovalor morado se corresponde con un par complejo conjugado, mientras que el resto son autovalores puramente reales. \textbf{Centro.} Evolución de la proyección de \(x\) sobre cada uno de los autovectores asociados a los autovalores de la primera imagen, se observan picos pronunciados que se corresponden temporalmente con \emph{caidas} en la parte real de los autovalores. \textbf{Derecha.} Evolución de \(|x|^2\) donde se observan los mismos picos que en las proyecciones de \(x\), pudiendo aproximar \(|x|^2 \simeq \sum_i |x_i|^2\) ya que para \(N \sim 1\) los autovectores son \emph{casi} ortogonales y \(W\) es \emph{casi} normal. Simulación para \(N = 5\) y \(\alpha = 0.001\)}
+  \caption{\textbf{Izquierda.} Evolución de la parte real de los autovalores de \(W\) con el tiempo. Se observa cómo oscilan en torno a \(\re(\lambda)=0\) con diferentes amplitudes. El autovalor morado se corresponde con un par complejo conjugado, mientras que el resto son autovalores puramente reales. \textbf{Centro.} Evolución de la proyección de \(x\) sobre cada uno de los autovectores asociados a los autovalores de la primera imagen, se observan picos pronunciados que se corresponden temporalmente con \emph{caidas} en la parte real de los autovalores. \textbf{Derecha.} Evolución de \(|x|^2\) donde se observan los mismos picos que en las proyecciones de \(x\), pudiendo aproximar \(|x|^2 \simeq \sum_i |x_i|^2\) ya que para \(N \sim 1\) los autovectores son \emph{casi} ortogonales y \(W\) es \emph{casi} normal. Simulación para \(N = 5\) y \(\alpha = 0.001\).}
   \label{fig:picos}
 \end{figure}
 
@@ -435,6 +436,7 @@ Podemos suponer sin pérdida de generalidad que \(u\) y \(v\) son un par de vect
 
 \begin{equation}
   \Delta_L = \rho (uv^T - vu^T) = \rho (ad - bc)(\tilde{u}\tilde{v}^T - \tilde{v}\tilde{u}^T) = \rho |u||v|\sin\theta_{uv}(\tilde{u}\tilde{v}^T - \tilde{v}\tilde{u}^T)
+  \label{eq:antisimetría y ortogonalidad}
 \end{equation}
 
 Por tanto siempre podemos suponer \(u\) y \(v\) ortonormales y escalar con el correspondiente factor, en el caso de que no lo sean, notando que cuando ambos son colineales \(\sin \theta_{uv} = 0\), por lo que es necesario que la matriz \(\Delta_L\) sea al menos de rango 2\footnote{De hecho una matriz antisimétrica solo puede tener rango par.}, haciendo que la evolución de \(W\) venga dada por 
@@ -493,17 +495,98 @@ Una vez almacenada la memoria en la matriz de conexiones el siguiente paso lógi
 
 pero como para una matriz antisimétrica los términos cruzados \(W_{ij} = -W_{ji}\) se cancelan entre sí  la energía total asociada a la parte antisimétrica es 0, por lo que la evolución mediante la ecuación \eqref{eq:evolución actividad} no empuja a \(x\) hacia ninguna dirección en concreto sino que hace que cada una de las proyecciones de \(x\) sobre los autoplanos de \(W\)\footnote{Los \emph{autoplanos} son los planos generados por un par de autovectores complejo conjugados.} rote, por lo que a la hora de recuperar la memoria al introducir un estímulo en \(x\) similar al patrón empleado no observaremos cómo todo el sistema se estructura para formar el patrón \(u\) o \(v\), sino que durante un corto periodo de tiempo veremos cómo el conjunto de neuronas oscilará en torno a ambos patrones con una frecuencia dada por la parte imaginaria del par de autovalores conjugados asociados a la memoria.
 
-Debido a que las direcciones \(u\) y \(v\) han quedado codificadas de forma permanente en la matriz de conexiones en forma de autovectores una vez que se excite al conjunto de neuronas mediante un estímulo generado en el plano \(uv\) de la forma \(b = p_u u + p_v v\), al ser \(u\) y \(v\) vectores propios de la matriz de conexiones con autovalores \(\lambda = \pm i \rho\) la actividad neuronal evolucionará como 
+Debido a que las direcciones \(u\) y \(v\) han quedado codificadas de forma permanente en la matriz de conexiones en forma de autovectores una vez que se excite al conjunto de neuronas mediante un estímulo generado en el plano \(uv\) de la forma \(b = p_u u + p_v v\), al ser \(u\) y \(v\) vectores propios de la matriz de conexiones con autovalores \(\lambda = -\beta \pm i \rho\) la actividad neuronal evolucionará como 
 
 \begin{equation}
-  \dot{x} = Wx \simeq Wb = p_u Wu + p_v Wv \Rightarrow
+  \dot{x} = Wx \simeq Ws = p_u Wu + p_v Wv \Rightarrow
   \begin{cases}
-    p_u(t) \simeq e^{i\rho}p_u(0)\\
-    p_v(t) \simeq e^{-i\rho}p_v(0)
+    p_u(t) \simeq e^{-\beta + i\rho}p_u(0)\\
+    p_v(t) \simeq e^{-\beta - i\rho}p_v(0)
   \end{cases}
 \end{equation}
-donde \(p_{u/v}\) son las proyecciones sobre las direcciones \(u\) y \(v\)
-\section{Conclusiones}
+donde \(p_{u/v}\) son las proyecciones sobre las direcciones \(u\) y \(v\), por ello al medir la proyección de \(x\) sobre la dirección \(u\) aparecerá una reverberación del estímulo que se extenderá después de haberse apagado este, y que solo aparecerá en la proyección de la dirección del estímulo y no en el resto de direcciones. 
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{Figures/retrieval.pdf}
+  \caption{Un estímulo en la dirección de la memoria introducida reverbera durante un tiempo. \textbf{Izquierda:} Amplitud imaginaria de los autovalores de \(W\) antes, durante y después del aprendizaje y de la recuperación, se observa cómo la recuperación de la memoria afecta mínimamente a su estado en la aprte imaginaria del autovalor. \textbf{Derecha:} En el momento en el que se aplica el estímulo externo la proyección de \(x\) sobre \(u\) aumenta, sin embargo esta no desaparece al eliminar el estímulo sino que revebera durante cierto tiempo antes de desaparecer, haciendo oscilar a \(x\) entre \(u\) y 
+  \(v\).}
+  \label{fig:retrieval}
+\end{figure}
+
+\subsection{Modelo de aprendizaje con STDP}
+El modelo de codificación de memorias presentado en la sección anterior se trata de una simplificación del modelo que buscamos simular, el STDP, ya que aunque a nivel matemático mediante ambos procesos estamos alimentando a la dinámica de la matriz de conexiones con una matriz antisimétrica, en el modelo simplificado introducimos directamente la matriz con el patrón ya estructurado en la dinámica, algo que a nivel neurológico no es plausible, ya que si buscamos hacer una analogía con el comportamiento real de las neuronas en el cerebro, la dinámica de las conexiones no puede ser modificada conexión a conexión sino que esta es una propiedad emergente de la dinámica de un gran número de neuronas. Para ello recuperamos la idea presentada en la sección \ref{sec:Aprendizaje anti simétrico y STDP}, donde la verdadera dinámica de aprendizaje de \(W\) es 
+
+\begin{align}
+  \Delta_L &= \eta (xy^T - yx^T)\\
+  \dot{y} &= \frac{1}{\tau} (x-y)
+\end{align}
+
+donde \(y(t)\) puede ser expresado en función de \(x(t)\) como un integrador con fugas de tiempo característico \(\tau\)
+
+\begin{equation}
+y(t) =\frac{1}{\tau}\int_{t_0}^t\underbrace{e^{(t'-t)/\tau}}_{\substack{\text{Kernel}\\\text{exponencial}}}x(t')dt' + \underbrace{y(t_0)e^{(t_0-t)/\tau}}_{\substack{\text{Fase inicial que}\\\text{disminuye exponencialmente}}}
+\end{equation} 
+
+Cuando presentamos la dinámica STDP comentamos que cuando el estímulo que se le presenta a la red se mueve en el plano generado por los vectores \(u\) y \(v\) podemos aproximar el término de aprendizaje que depende del tiempo por un término constante en forma de una matriz antisimétrica generada mediante \(u\) y \(v\). Sin embargo para que ello sea posible el estímulo no puede ser de cualquier tipo ya que los vectores \(x\) e \(y\) deben ser ortogonales o al menos linealmente independientes para poder encontrar una matriz no nula dada por la ecuación \eqref{eq:antisimetría y ortogonalidad}, esto es \(\sin\theta_{xy} \neq 0\), y aquí es donde entra en juego el método de cálculo de \(y\), pues se trata de un integrador con fugas de \(x\) que actúa promediando el vector de actividad neuronal en una ventana de tiempo mediante una función exponencial dándole más peso a los tiempos cercanos y menos a los lejanos con un tiempo característico \(\tau\), por lo que a tiempo \(t\) todo lo que haya ocurrido a tiempos mucho más antiguos que \(\sim t - \tau\) no tendrá relevancia \footnote{-2.3\(\tau\) supone el percentil 90 de la distribución, por lo que ocurra a tiempos anteriores será solo un 10\% del valor total, siendo la escala de tiempos que \emph{recuerda} \(y\) del orden de \(\tau\).}, y todo lo que ocurra dentro de ese rango de tiempos entre \(t-\tau\) y \(t\) se promediará entre sí.
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.8\linewidth]{Figures/leaky integrator.pdf}
+  \caption{Efecto del integrador con fugas. La trayectoria gris es la señal original, mientras que la verde es la señal pesada por el \emph{kernel} exponencial. Los valores a tiempos menores a \(\sim 2.3 \tau\) no afectan al cómputo total del integrador, el área sombreada en verde. }
+\end{figure}
+
+
+Una vez mostrado esto, queda claro que si el tiempo en que se presenta el estímulo es mucho menor al tiempo característico, \(\tau\), este se \emph{perderá} en el promedio, por lo que solo serán significativos estímulos externos que duren tiempos mayores a \(\tau\). Sin embargo un estímulo uniforme no producirá una matriz antisimétrica, pues si aplicamos el estímulo \(s(t) = s\) durante el tiempo suficiente ocurrirá que tanto \(x = s\) como \(y = s\), por lo que \(xy^T - yx^T = ss^T - ss^T = 0\), esto tiene sentido ya que lo que estamos intentando introducir en la memoria de la red no es un solo patrón sino un conjunto de dos patrones ortogonales, por lo que el estímulo requerirá de cierta \emph{dinámica} en el plano de los patrones para poder separar \(x\) e \(y\) lo suficiente como para producir una matriz antisimétrica. Aquí es donde \cite{susman2019} propone un estímulo genérico de la forma \(s(t) = \eta(t) u + \xi(t) v\), con \(\eta(t)\) y \(\xi(t)\) sendos ruidos blancos de amplitud \(\sigma\) para generar un camino aleatorio por el plano \(uv\) que capture la geometría del espacio. Con este modelo aseguran obtener resultados similares a los obtenidos en la sección anterior (separación  de un par de autovalores \emph{outliers} complejo conjugados con autovectores pertenecientes al plano \(uv\)), sin embargo mediante una revisión de su código y de los parámetros empleados en su simulación uno es capaz de constatar que dicho resultado no es replicable dado que depende fuertemente de la semilla elegida para generar el ruido aleatorio. Con esto no se pretende plantear la invalidez de dicho resultado sino puntualizar el hecho de que no es tan general como se da a entender y que el estímulo necesario para producir los resultados esperados no es tan genérico como se plantea inicialmente.
+
+\begin{figure}[htbp]
+  \begin{subfigure}[t]{0.48\textwidth}
+    \caption{}\label{fig:seed seed}
+    \includegraphics[width=\linewidth]{Figures/Figuras Susman/seed seed.pdf}
+  \end{subfigure}
+  \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+    \caption{}\label{fig:seed 6342643}
+    \includegraphics[width=\linewidth]{Figures/Figuras Susman/seed 6342643.pdf}
+  \end{subfigure}
+  \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+    \caption{}\label{fig:seed 56734}
+    \includegraphics[width=\linewidth]{Figures/Figuras Susman/seed 56734.pdf}
+  \end{subfigure}
+  \hfill
+    \begin{subfigure}[t]{0.48\textwidth}
+    \caption{}\label{fig:seed 11}
+    \includegraphics[width=\linewidth]{Figures/Figuras Susman/seed 11.pdf}
+  \end{subfigure}
+  \caption{El caminante aleatorio no proporciona un estímulo valioso. En esta figura se muestran cuatro realizaciones del proceso de aprendizaje mediante STDP, la subfigura superior izquierda, \subref{fig:seed seed}, presenta el comportamiento esperado del modelo antisimétrico, mostrando la separación en la parte imaginaria de un par de autovalores complejo conjugados, mientra que las otras tres subfiguras, \subref{fig:seed 6342643}, \subref{fig:seed 56734} y \subref{fig:seed 11}, cuyas semillas del generador de números aleatorios han sido seleccionadas de forma aleatoria no muestran el comportamiento esperado. Los resultados se han obtenido empleando el código proporcionado por \cite{susman2019} en el propio artículo.}
+\end{figure}
+
+El hecho de que el ruido aleatorio descorrelacionado temporalmente no sea capaz de generar un patrón memorizable es tan sencillo como que el promedio temporal del ruido blanco es 0, y por tanto al ser \(y\) un promedio de \(x\), y por tanto del estímulo \(s(t)\) durante el tiempo en el que se presenta, este vector se hará 0 y por tanto no habrá perturbación antisimétrica.
+
+Para que la matriz realmente capture la estructura del plano \(uv\) se debe cumplir tanto que \(y\) sea diferente de 0 como que sea diferente de \(x\), y esto es posible tan solo si el vector \(s(t)\) rota en el plano \(uv\) en un sentido específico, esto es \(s(t) \simeq \sin(\omega t)u + \cos(\omega t)v\). Si \(s(t)\) representa una rotación en el plano \(uv\), al ser \(y\) una imagen desfasada de \(x\), este primero será linealmente independiente al segundo durante todo el proceso de estimulación, generando una matriz no nula, aún así si la frecuencia angular de rotación de \(s(t)\) en el plano \(uv\), \(\omega\) es mucho mayor a \(\frac{2\pi}{\tau}\), \(x\) realizará más de una rotación completa durante el tiempo en el que \(y\) está promediando, por lo que por pura geometría al ser el promedio de un vector a lo largo  de una rotación completa 0, \(y\) volverá a ser nulo, o despreciable de forma similar a cuando había ruido aleatorio, por eso no solo \(s(t)\) debe rotar en el plano \(uv\), sino que debe hacerlo con una frecuencia angular \(\omega \simeq \frac{2\pi}{\tau}\), mucho mayor y \(y\) se hace 0, mucho menor y el estímulo es prácticamente constante en el tiempo, haciendo \(y \simeq x\), y por tanto \(xy^T-yx^T \simeq 0\).
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=0.6\linewidth]{Figures/rotacion.pdf}
+  \caption{\(x\) e \(y\) deben estar desfasados en su rotación en el plano \(uv\) para poder generar una matriz antisimétrica mediante el aprendizaje basado en el STDP.}
+\end{figure}
+
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\linewidth]{Figures/STDP correcto.pdf}
+  \caption{El aprendizaje STDP es capaz de generar \emph{outliers} imaginarios. \textbf{Izquierda:} Parte imaginaria de los autovalores de la matriz de conexiones. Se observa claramente como el parendizaje basado en la STDP genera un aumento en la amplitud imaginaria de un par de autovalores complejo conjugados de forma similar a cómo ocurre con la regla simplificada observada en la figura \ref{fig:aprendizaje antisimétrico} pero con un crecimiento no lineal en la amplitud imaginaria. \textbf{Derecha:} Proyección del plano de los autovectores asociados a los autovalores \emph{outliers} sobre el plano \(uv\). Al igual que en la figura \ref{fig:aprendizaje antisimétrico} aparece un punto en el que la proyección satura en 1 y por mucho que aumente la parte imaginaria del autovalor no aumenta la proyección entre planos. Simulación para \(\alpha = 0.001\), \(N=10\), \(\rho=50\), \(\Delta t_{Estimulo}=500\), \(\tau=500\) y \(\omega = \frac{\pi}{\tau}\).}
+  \label{fig:aprendizaje STDP}
+\end{figure}
+La figura \ref{fig:aprendizaje STDP} muestra claramente cómo mediante un estímulo \emph{giratorio} el aprendizaje de la memoria se lleva a cabo y de forma más intensa si tenemos en cuenta el salto en la proyección entre el plano de la memoria y el plano \(uv\), pues en el caso del aprendizaje mediante una matriz antisimétrica preconstruida, figura \ref{fig:aprendizaje antisimétrico}, el crecimiento en la proyección es rápido y luego se suaviza hasta casi estancarse en 1, mientras que en el STDP el salto desde \(\sim 0\) hasta 1 es abrupto, mostrando que el método que almacena la memoria lo hace de forma más eficiente y no requiere que los autovalores de la memoria tengan un a parte imaginaria tan grande como en el caso del aprendizaje simplificado.
+
+\section{Conclusions}
+Este trabajo de fin de grado ha servido para estudiar y desentrañar el modelo de dinámica neuronal anti hebbiana en profundidad, no solo ampliando los estudios ya existentes de cómo esta regla estructura a la actividad neuronal en un régimen de criticidad dinámica \cite{magnasco2009} y cómo es posible aprovechar la estructura de la homeostasis para almacenar memorias robustas dentro de las conexiones cambiantes \cite{susman2019}, sino también profundizando en cuáles son las condiciones concretas bajo las que es todo esto posible y obtener resultados cualitativos y cuantitativos que expliquen los pormenores de los diferentes eventos que surgen de la dinámica a diferentes escalas. 
+
+El hecho constatable del constante cambio de las sinapsis entre neuronas y de las conexiones que comparten entre ellas ha inspirado el estudio de cómo puede existir una dinámica que sea capaz de mantener la actividad de las neuronas bajo control, y a la vez dejar espacio libre para la existencia de mecanismos que sean capaces de tranformar los estímulos externos en patrones rubustos codificados dentro de las propias conexiones cambiantes y mutables. Esta dinámica homeostática que se propone en este trabajo de fin de grado emplea la parte simétrica de la matriz de conexiones que, como se ha mostrado, domina la parte real de los autovalores del jacobiano del sistema, pudiendo modificar la estabilidad de este para obtener una dinámica que, pese a no alcanzar el equilibrio en ningún momento, como se observa en las redes neuronales biológicas, mantiene su actividad acotada capaz de responder a estímulos que podrían desestabilizar la red tocando los autovalores necesarios para evitarlo. Esto es el resultado de la \emph{lucha} entre modos de la red para obtener el control de las actividades y cómo el aumento en la actividad de un modo es la causa de la consecuente disminución de este, haciendo que estos oscilen interactuando entre ellos y generando una dinámica caótica altemente sensible a las condiciones iniciales.
+
+
+
 \newpage
 
 \bibliographystyle{unsrt}
