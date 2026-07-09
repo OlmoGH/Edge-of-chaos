@@ -48,58 +48,48 @@ T_LOW = 2
 T_HIGH = 4.0    
 T_C = 2.0 / np.log(1.0 + np.sqrt(2.0))
 
-print("Simulando temperatura crítica (T = 2.269)...")
-red_critica = simular_ising(L, T_C, MCS_LOW)
+# print("Simulando temperatura crítica (T = 2.269)...")
+# red_critica = simular_ising(L, T_C, MCS_LOW)
 
-plt.imshow(red_critica, cmap='coolwarm', interpolation='None')
-plt.rcParams.update({'font.size': 13, 'font.family': 'serif'})
-plt.title("Punto crítico\n T ~ 2.269")
-plt.xticks([])
-plt.yticks([])
-plt.savefig("Ising_critico_sin_labels.pdf")
-plt.savefig("Ising_critico_sin_labels.png", dpi=500)
-plt.show()
-# # --- EJECUCIÓN DE LAS SIMULACIONES ---
-# print("Simulando temperatura baja (T = 1.5)...")
-# red_baja = simular_ising(L, T_LOW, MCS_LOW)
+# plt.imshow(red_critica, cmap='greys', interpolation='None')
+# plt.rcParams.update({'font.size': 13, 'font.family': 'serif'})
+# plt.title("Punto crítico\n T ~ 2.269")
+# plt.xticks([])
+# plt.yticks([])
+# plt.savefig("Ising_critico_sin_labels.pdf")
+# plt.savefig("Ising_critico_sin_labels.png", dpi=500)
+# plt.show()
+# --- EJECUCIÓN DE LAS SIMULACIONES ---
+print("Simulando temperatura baja (T = 1.5)...")
+red_baja = simular_ising(L, T_LOW, MCS_LOW)
 
-# print("Simulando temperatura alta (T = 4.0)...")
-# red_alta = simular_ising(L, T_HIGH, MCS_HIGH)
+print("Simulando temperatura alta (T = 4.0)...")
+red_alta = simular_ising(L, T_HIGH, MCS_HIGH)
 
-# # --- GENERACIÓN DE LAS GRÁFICAS PARA EL TFG ---
-# plt.rcParams.update({'font.size': 11, 'font.family': 'serif'})
+# --- GENERACIÓN DE LAS GRÁFICAS PARA EL TFG ---
+plt.rcParams.update({'font.size': 11, 'font.family': 'serif'})
 
-# # Creamos la figura con un tamaño fijo
-# fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 6))
+# Creamos la figura con un tamaño fijo
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 6))
 
-# # Ajustamos los márgenes manualmente para dejar espacio libre ABAJO (bottom=0.22)
-# fig.subplots_adjust(left=0.08, right=0.92, bottom=0.2, top=0.85, )
+# Ajustamos los márgenes manualmente para dejar espacio libre ABAJO (bottom=0.22)
+fig.subplots_adjust(left=0.08, right=0.92, bottom=0.2, top=0.85, )
 
-# # Gráfica 1: Temperatura Baja
-# im1 = ax1.imshow(red_baja, cmap='coolwarm', interpolation='nearest')
-# ax1.set_title(f"Fase Ordenada (Baja Temperatura)\nT = {T_LOW}", fontsize=13, pad=12)
-# ax1.set_xticks([])
-# ax1.set_yticks([])
+# Gráfica 1: Temperatura Baja
+im1 = ax1.imshow(red_baja, cmap='coolwarm', interpolation='nearest')
+ax1.set_title(f"Fase Ordenada (Baja Temperatura)\nT = {T_LOW}", fontsize=13, pad=12)
+ax1.set_xticks([])
+ax1.set_yticks([])
 
-# # Gráfica 2: Temperatura Alta
-# im2 = ax2.imshow(red_alta, cmap='coolwarm', interpolation='nearest')
-# ax2.set_title(f"Fase Desordenada (Alta Temperatura)\nT = {T_HIGH}", fontsize=13, pad=12)
-# ax2.set_xticks([])
-# ax2.set_yticks([])
-
-# # CREACIÓN DEL EJE PROPIO PARA LA COLORBAR (cax)
-# # Coordenadas: [izquierda, abajo, ancho, alto] en porcentaje de la figura
-# # 0.3 significa que empieza al 30% del ancho; 0.08 significa que está al 8% desde el borde inferior.
-# cax = fig.add_axes([0.30, 0.1, 0.40, 0.04])
-
-# # Dibujamos la barra en ese eje específico
-# cbar = fig.colorbar(im2, cax=cax, orientation='horizontal')
-# cbar.set_ticks([-1, 1])
-# cbar.set_ticklabels(['Espín Abajo (-1)', 'Espín A (+1)'])
+# Gráfica 2: Temperatura Alta
+im2 = ax2.imshow(red_alta, cmap='coolwarm', interpolation='nearest')
+ax2.set_title(f"Fase Desordenada (Alta Temperatura)\nT = {T_HIGH}", fontsize=13, pad=12)
+ax2.set_xticks([])
+ax2.set_yticks([])
 
 # # Guardar la imagen con alta calidad
 # nombre_archivo = 'transicion_fase_ising_corregida.png'
 # plt.savefig(nombre_archivo, dpi=300, bbox_inches='tight')
 # print(f"\n¡Gráfica corregida guardada como '{nombre_archivo}'!")
 
-# plt.show()
+plt.show()
