@@ -37,58 +37,58 @@ def simular_ising(L, T, pasos_mcs):
     beta = 1.0 / T
     red = inicializar_red(L)
     for paso in range(pasos_mcs):
+        if (paso * 100) % pasos_mcs == 0:
+            print("Paso ", paso, "/", pasos_mcs)
         red = paso_metropolis(red, beta)
     return red
 
 # Definición de parámetros
-L = 4000       
+L = 1000       
 MCS_LOW = 4000    
 MCS_HIGH = 500    
+MCS_CRIT = 50000
 T_LOW = 2       
 T_HIGH = 4.0    
 T_C = 2.0 / np.log(1.0 + np.sqrt(2.0))
 
-# print("Simulando temperatura crítica (T = 2.269)...")
-# red_critica = simular_ising(L, T_C, MCS_LOW)
+print("Simulando temperatura crítica (T = 2.269)...")
+red_critica = simular_ising(L, T_C, MCS_CRIT)
 
-# plt.imshow(red_critica, cmap='greys', interpolation='None')
-# plt.rcParams.update({'font.size': 13, 'font.family': 'serif'})
-# plt.title("Punto crítico\n T ~ 2.269")
-# plt.xticks([])
-# plt.yticks([])
-# plt.savefig("Ising_critico_sin_labels.pdf")
-# plt.savefig("Ising_critico_sin_labels.png", dpi=500)
-# plt.show()
-# --- EJECUCIÓN DE LAS SIMULACIONES ---
-print("Simulando temperatura baja (T = 1.5)...")
-red_baja = simular_ising(L, T_LOW, MCS_LOW)
+plt.imshow(red_critica, cmap='binary', interpolation='None')
+plt.title("Punto crítico\n"+ r"T $\simeq$ 2.269", fontsize=16, pad=12)
+plt.xticks([])
+plt.yticks([])
+plt.savefig("Autovalores_de_matrices/LaTex/Figures/Ising_critico_sin_labels.pdf")
+plt.show()
+# # --- EJECUCIÓN DE LAS SIMULACIONES ---
+# print("Simulando temperatura baja (T = 1.5)...")
+# red_baja = simular_ising(L, T_LOW, MCS_LOW)
 
-print("Simulando temperatura alta (T = 4.0)...")
-red_alta = simular_ising(L, T_HIGH, MCS_HIGH)
+# print("Simulando temperatura alta (T = 4.0)...")
+# red_alta = simular_ising(L, T_HIGH, MCS_HIGH)
 
-# --- GENERACIÓN DE LAS GRÁFICAS PARA EL TFG ---
-plt.rcParams.update({'font.size': 11, 'font.family': 'serif'})
+# # --- GENERACIÓN DE LAS GRÁFICAS PARA EL TFG ---
 
-# Creamos la figura con un tamaño fijo
-fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 6))
+# # Creamos la figura con un tamaño fijo
+# fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(11, 6))
 
-# Ajustamos los márgenes manualmente para dejar espacio libre ABAJO (bottom=0.22)
-fig.subplots_adjust(left=0.08, right=0.92, bottom=0.2, top=0.85, )
+# # Ajustamos los márgenes manualmente para dejar espacio libre ABAJO (bottom=0.22)
+# fig.subplots_adjust(left=0.08, right=0.92, bottom=0.2, top=0.85, )
 
-# Gráfica 1: Temperatura Baja
-im1 = ax1.imshow(red_baja, cmap='coolwarm', interpolation='nearest')
-ax1.set_title(f"Fase Ordenada (Baja Temperatura)\nT = {T_LOW}", fontsize=13, pad=12)
-ax1.set_xticks([])
-ax1.set_yticks([])
+# # Gráfica 1: Temperatura Baja
+# im1 = ax1.imshow(red_baja, cmap='binary', interpolation='none')
+# ax1.set_title(f"Fase Ordenada (Baja Temperatura)\nT = {T_LOW}", fontsize=16, pad=12)
+# ax1.set_xticks([])
+# ax1.set_yticks([])
 
-# Gráfica 2: Temperatura Alta
-im2 = ax2.imshow(red_alta, cmap='coolwarm', interpolation='nearest')
-ax2.set_title(f"Fase Desordenada (Alta Temperatura)\nT = {T_HIGH}", fontsize=13, pad=12)
-ax2.set_xticks([])
-ax2.set_yticks([])
+# # Gráfica 2: Temperatura Alta
+# im2 = ax2.imshow(red_alta, cmap='binary', interpolation='none')
+# ax2.set_title(f"Fase Desordenada (Alta Temperatura)\nT = {T_HIGH}", fontsize=16, pad=12)
+# ax2.set_xticks([])
+# ax2.set_yticks([])
 
 # # Guardar la imagen con alta calidad
-# nombre_archivo = 'transicion_fase_ising_corregida.png'
+# nombre_archivo = 'Autovalores_de_matrices/LaTex/Figures/transicion_fase_ising_corregida.pdf'
 # plt.savefig(nombre_archivo, dpi=300, bbox_inches='tight')
 # print(f"\n¡Gráfica corregida guardada como '{nombre_archivo}'!")
 
