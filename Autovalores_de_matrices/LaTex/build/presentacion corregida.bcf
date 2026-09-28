@@ -2375,11 +2375,9 @@
   <bcf:section number="0">
     <bcf:citekey order="1" intorder="1">beggs2003</bcf:citekey>
     <bcf:citekey order="2" intorder="1">bertschinger2004</bcf:citekey>
-    <bcf:citekey order="3" intorder="1">beggs2003</bcf:citekey>
-    <bcf:citekey order="4" intorder="1">buendia2020</bcf:citekey>
-    <bcf:citekey order="5" intorder="1">fitzpatrick2006</bcf:citekey>
-    <bcf:citekey order="6" intorder="1">bak1987</bcf:citekey>
-    <bcf:citekey order="7" intorder="1">susman2019</bcf:citekey>
+    <bcf:citekey order="3" intorder="1">buendia2020</bcf:citekey>
+    <bcf:citekey order="4" intorder="1">bak1987</bcf:citekey>
+    <bcf:citekey order="5" intorder="1">susman2019</bcf:citekey>
   </bcf:section>
   <!-- SORTING TEMPLATES -->
   <bcf:sortingtemplate name="nty">
